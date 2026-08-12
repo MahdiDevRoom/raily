@@ -534,7 +534,6 @@ STATUSBAR.init();
 SIDEBAR.init();
 TIME.init();
 PAGES.init();
-PAGES.open('new-task');
 DATEPICKER.init();
 
 PAGES.onload = (pagename) => {
