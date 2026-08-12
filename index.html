@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Planer</title>
+
+        <!-- Theme Color -->
+        <meta name="theme-color">
+
+        <!-- styles -->
+        <link rel="stylesheet" href="styles/style.css">
+    </head>
+    <body>
+        <div id="appbar">
+            <span class="title" onclick="PAGES.open('home')"> Raily </span>
+            <div class="btns">
+                <div onclick="SIDEBAR.open()" class="symbol"> Menu </div>
+            </div>
+        </div>
+
+        <div id="sidebar">
+            <div class="fg">
+                <div class="header">
+                    <div class="title"> Raily </div>
+                    <div id="raily-theme-switch" class="switch">
+                        <span data-action="auto"
+                            class="symbol"> Brightness_Auto </span>
+                        <span data-action="light"
+                            class="symbol"> Light_Mode </span>
+                        <span data-action="dark"
+                            class="symbol"> Dark_Mode </span>
+                    </div>
+                    <div class="btns">
+                        <div onclick="SIDEBAR.close()"
+                            class="symbol"> Close </div>
+                    </div>
+                </div>
+                <div class="body"></div>
+            </div>
+            <div class="bg"></div>
+        </div>
+
+        <div id="main">
+            <div id="tabbar"></div>
+            <div id="pages">
+                <div data-page="home">
+                    <section class="hero-section">
+                        <div class="text">
+                            <div class="title"> رایلی </div>
+                            <div class="sub-title"> پلنر هوشمند زندگی </div>
+                        </div>
+                        <div class="time">
+                            <div id="raily-calendar"></div>
+                            <div id="raily-clock"></div>
+                        </div>
+                    </section>
+
+                    <div class="page-body"></div>
+                </div>
+                <div data-page="new-task">
+                    <div class="page-body">
+                        <div class="page-title c-title"> فعالیت جدید </div>
+                        <div id="new-task-form">
+                            <label for="task-title"> عنوان فعالیت </label>
+                            <input id="task-title" type="text">
+                            <label for="task-category"> دسته بندی </label>
+                            <select id="task-category">
+                                <option value="study" selected> مطالعه </option>
+                                <option value="work"> کار </option>
+                                <option value="exercise"> ورزش </option>
+                                <option value="rest"> استراحت </option>
+                                <option value="fun"> تفریح </option>
+                                <option value="sleep"> خواب </option>
+                                <option value="other"> سایر </option>
+                            </select>
+
+                            <label for="task-descriptions"></textarea"> توضیحات </label>
+                            <textarea id="task-descriptions"></textarea>
+
+                            <label for="task-date"> تاریخ </label>
+                            <div class="flex">
+                                <label for="task-date" class="btn"> <symbol class="symbol"> Calendar_Month </symbol> </label>
+                                <input onclick="DATEPICKER.open((date)=> this.value = date)" id="task-date" class="grow" type="text">
+                            </div>
+
+                            <label for="task-priority"> اولویت </label>
+                            <select id="task-priority">
+                                <option value="low">🟢 کم</option>
+                                <option value="medium"
+                                    selected>🟡 متوسط</option>
+                                <option value="high">🔴 بالا</option>
+                            </select>
+                            <div class="row">
+                                <button> 
+                                    <div class="symbol"> Add </div>
+                                    <span> افزودن </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="fab" onclick="PAGES.open('new-task')">
+            <span class="label"> فعالیت جدید </span>
+            <span class="symbol"> Add </span>
+        </div>
+
+        <div id="navbar"></div>
+
+        <div id="datepicker">
+            <div class="fg">
+                <div class="header">
+                    <div
+                        class="back"> <span class="symbol"> arrow_forward </span> </div>
+                    <div class="day"></div>
+                    <div class="month"></div>
+                    <div class="year"></div>
+                    <div
+                        class="next"> <span class="symbol"> arrow_back </span> </div>
+                </div>
+                <div class="body">
+                    <div class="day-view">
+                        <div class="weekday"></div>
+                        <div class="days"></div>
+                    </div>
+                    <div class="month-view">
+                        <div class="months"></div>
+                    </div>
+                    <div class="year-view">
+                        <div class="years"></div>
+                    </div>
+                </div>
+                <div class="footer">
+                    <div>
+                        <button class="submit"> انتخاب </button>
+                    </div>
+                    <div>
+                        <button class="reset"> ریست </button>
+                        <button class="cancel"> کنسل </button>
+                    </div>
+                </div>
+            </div>
+            <div class="bg"></div>
+        </div>
+
+        <script src="scripts/main.js"></script>
+    </body>
+</html>
