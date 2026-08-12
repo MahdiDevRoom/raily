@@ -10,15 +10,20 @@
 
         <!-- styles -->
         <link rel="stylesheet" href="styles/style.css">
+
+        <!-- libs -->
+        <script src="scripts/localforage.min.js"></script>
     </head>
     <body>
+        <!--- Appbar ----------------------------------------------------->
         <div id="appbar">
             <span class="title" onclick="PAGES.open('home')"> Raily </span>
             <div class="btns">
                 <div onclick="SIDEBAR.open()" class="symbol"> Menu </div>
             </div>
         </div>
-
+        
+        <!--- Sidebar ----------------------------------------------------->
         <div id="sidebar">
             <div class="fg">
                 <div class="header">
@@ -41,75 +46,80 @@
             <div class="bg"></div>
         </div>
 
-        <div id="main">
-            <div id="tabbar"></div>
-            <div id="pages">
-                <div data-page="home">
-                    <section class="hero-section">
-                        <div class="text">
-                            <div class="title"> رایلی </div>
-                            <div class="sub-title"> پلنر هوشمند زندگی </div>
+        <!--- Pages ------------------------------------------------------->
+        <div id="pages">
+            <!-- Home -->
+            <div data-page="home">
+                <section class="hero-section">
+                    <div class="text">
+                        <div class="title"> رایلی </div>
+                        <div class="sub-title"> پلنر هوشمند زندگی </div>
+                    </div>
+                    <div class="time">
+                        <div id="raily-calendar"></div>
+                        <div id="raily-clock"></div>
+                    </div>
+                </section>
+
+                <div class="page-body"></div>
+            </div>
+
+            <!-- New Task -->
+            <div data-page="new-task">
+                <div class="page-body">
+                    <div class="page-title c-title"> فعالیت جدید </div>
+                    <div id="new-task-form">
+
+                        <label for="task-title"> عنوان فعالیت </label>
+                        <input id="task-title" type="text">
+
+                        <label for="task-category"> دسته بندی </label>
+                        <select id="task-category">
+                            <option value="study" selected> مطالعه </option>
+                            <option value="work"> کار </option>
+                            <option value="exercise"> ورزش </option>
+                            <option value="rest"> استراحت </option>
+                            <option value="fun"> تفریح </option>
+                            <option value="sleep"> خواب </option>
+                            <option value="other"> سایر </option>
+                        </select>
+
+                        <label for="task-descriptions"> توضیحات </label>
+                        <textarea id="task-descriptions"></textarea>
+
+                        <label for="task-date"> تاریخ </label>
+                        <div class="flex">
+                            <label for="task-date" class="btn"> <symbol class="symbol"> Calendar_Month </symbol> </label>
+                            <input onclick="DATEPICKER.open((date)=> this.value = date)" id="task-date" class="grow" type="text" readonly>
                         </div>
-                        <div class="time">
-                            <div id="raily-calendar"></div>
-                            <div id="raily-clock"></div>
-                        </div>
-                    </section>
 
-                    <div class="page-body"></div>
-                </div>
-                <div data-page="new-task">
-                    <div class="page-body">
-                        <div class="page-title c-title"> فعالیت جدید </div>
-                        <div id="new-task-form">
-                            <label for="task-title"> عنوان فعالیت </label>
-                            <input id="task-title" type="text">
-                            <label for="task-category"> دسته بندی </label>
-                            <select id="task-category">
-                                <option value="study" selected> مطالعه </option>
-                                <option value="work"> کار </option>
-                                <option value="exercise"> ورزش </option>
-                                <option value="rest"> استراحت </option>
-                                <option value="fun"> تفریح </option>
-                                <option value="sleep"> خواب </option>
-                                <option value="other"> سایر </option>
-                            </select>
-
-                            <label for="task-descriptions"> توضیحات </label>
-                            <textarea id="task-descriptions"></textarea>
-
-                            <label for="task-date"> تاریخ </label>
-                            <div class="flex">
-                                <label for="task-date" class="btn"> <symbol class="symbol"> Calendar_Month </symbol> </label>
-                                <input onclick="DATEPICKER.open((date)=> this.value = date)" id="task-date" class="grow" type="text" readonly>
-                            </div>
-
-                            <label for="task-priority"> اولویت </label>
-                            <select id="task-priority">
-                                <option value="low">🟢 کم</option>
-                                <option value="medium"
-                                    selected>🟡 متوسط</option>
-                                <option value="high">🔴 بالا</option>
-                            </select>
-                            <div class="row">
-                                <button> 
-                                    <div class="symbol"> Add </div>
-                                    <span> افزودن </span>
-                                </button>
-                            </div>
-                        </div>
+                        <label for="task-priority"> اولویت </label>
+                        <select id="task-priority">
+                            <option value="low">🟢 کم</option>
+                            <option value="medium" selected>🟡 متوسط</option>
+                            <option value="high">🔴 بالا</option>
+                        </select>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="fab" onclick="PAGES.open('new-task')">
-            <span class="label"> فعالیت جدید </span>
-            <span class="symbol"> Add </span>
+        <!--- FAB --------------------------------------------------------->
+        <div id="fab">
+            <button data-action="new-task" onclick="PAGES.open('new-task')">
+                <span class="label"> فعالیت جدید </span>
+                <span class="symbol"> Add </span>
+            </button>
+            <button data-action="add-task">
+                <span class="label"> افزودن </span>
+                <span class="symbol"> Add </span>
+            </button>
         </div>
 
+        <!--- Navbar ------------------------------------------------------>
         <div id="navbar"></div>
 
+        <!--- Datepicker -------------------------------------------------->
         <div id="datepicker">
             <div class="fg">
                 <div class="header">
@@ -144,6 +154,26 @@
             <div class="bg"></div>
         </div>
 
+        <!--- CONFIRM ----------------------------------------------------->
+        <div id="confirm">
+            <div class="fg">
+                <div class="header">
+                    <div class="title">تایید</div>
+                </div>
+                <div class="body">
+                    <div class="message"></div>
+                </div>
+                <div class="footer">
+                    <button class="cancel">انصراف</button>
+                    <button class="confirm">تایید</button>
+                </div>
+            </div>
+            <div class="bg"></div>
+        </div>
+        <!--- TOAST ------------------------------------------------------->
+        <div id="toast"></div>
+
+        <!--- Script ------------------------------------------------------>
         <script src="scripts/main.js"></script>
     </body>
 </html>

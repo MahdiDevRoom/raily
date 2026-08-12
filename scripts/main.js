@@ -1,11 +1,5 @@
 // --- THEME --------------------------------------------------------
 const THEME = {
-    theme: null,
-    root: null,
-    storage: null,
-    target: null,
-    switch: null,
-
     init() {
         this.root = document.documentElement;
         this.storage = 'raily-theme';
@@ -77,9 +71,6 @@ const THEME = {
 
 // --- STATUSBAR ----------------------------------------------------
 const STATUSBAR = {
-    meta: null,
-    color: null,
-
     init() {
         this.meta = document.querySelector('meta[name="theme-color"]');
         this.color = 'surface';
@@ -126,8 +117,6 @@ const STATUSBAR = {
 
 // --- SIDEBAR ------------------------------------------------------
 const SIDEBAR = {
-    root: null,
-
     init() {
         this.root = document.getElementById('sidebar');
     },
@@ -157,10 +146,6 @@ const SIDEBAR = {
 
 // --- TIME ---------------------------------------------------------
 const TIME = {
-    clock: null,
-    calendar: null,
-    animationId: null,
-
     init() {
         this.clock = document.getElementById('raily-clock');
         this.calendar = document.getElementById('raily-calendar');
@@ -203,15 +188,10 @@ const TIME = {
 
 // --- PAGED --------------------------------------------------------
 const PAGES = {
-    index: null,
-    root: null,
-    spinner: null,
-    current: null,
-    target: new EventTarget(),
-
     init(config) {
         this.root = document.getElementById('pages');
         this.index = 'home';
+        this.target = new EventTarget();
 
         window.addEventListener("DOMContentLoaded", () => {
             let hash = location.hash.slice(1);
@@ -528,6 +508,347 @@ const DATEPICKER = {
 
 }
 
+// --- CONFIRM DIALOG ------------------------------------------------
+const CONFIRM = {
+    init() {
+        this.root = document.getElementById('confirm');
+
+        this.fg = this.root.querySelector('.fg');
+        this.bg = this.root.querySelector('.bg');
+        this.titleEl = this.root.querySelector('.header .title');
+        this.messageEl = this.root.querySelector('.body .message');
+        this.confirmBtn = this.root.querySelector('.footer .confirm');
+        this.cancelBtn = this.root.querySelector('.footer .cancel');
+
+        this.confirmBtn.addEventListener('click', () => {
+            if (this.onConfirm) this.onConfirm();
+            this.close();
+        });
+
+        this.cancelBtn.addEventListener('click', () => {
+            if (this.onCancel) this.onCancel();
+            this.close();
+        });
+
+        this.bg.addEventListener('click', () => {
+            if (this.onCancel) this.onCancel();
+            this.close();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.root.classList.contains('active')) {
+                if (this.onCancel) this.onCancel();
+                this.close();
+            }
+        });
+    },
+
+    open(options = {}) {
+        const {
+            title = 'تایید',
+            message = 'آیا از انجام این کار مطمئن هستید؟',
+            confirmText = 'تایید',
+            cancelText = 'انصراف',
+            onConfirm = null,
+            onCancel = null,
+        } = options;
+
+        this.titleEl.textContent = title;
+        this.messageEl.textContent = message;
+        this.confirmBtn.textContent = confirmText;
+        this.cancelBtn.textContent = cancelText;
+        this.onConfirm = onConfirm;
+        this.onCancel = onCancel;
+
+        this.root.classList.add('active');
+    },
+
+    close() {
+        this.root.classList.remove('active');
+    },
+
+    confirm(message, onConfirm) {
+        this.open({
+            message,
+            onConfirm,
+            onCancel: null,
+        });
+    },
+
+    ask(options) {
+        this.open(options);
+    },
+};
+
+// --- TOAST --------------------------------------------------------
+const TOAST = {
+    init() {
+        this.root = document.getElementById('toast');
+    },
+
+    add(input = 'Hey', type = 'info', pos = 'bl') {
+        const symbol = {
+            info: 'info',
+            success: 'check_circle',
+            warning: 'warning',
+            error: 'error',
+        };
+
+        const position = [
+            'tl', 'tc', 'tr',
+            'cl', 'cc', 'cr',
+            'bl', 'bc', 'cr',
+        ];
+
+        this.root.innerHTML = `<div class="${type} ${pos}"> 
+            <span class="symbol"> ${symbol[type]} </span>
+            <span class="content"> ${input} </span>
+        </div>`;
+
+        setTimeout(() => { this.root.innerHTML = '' }, 4000);
+    }
+}
+
+// --- TASK ---------------------------------------------------------
+const TASK = {
+    init() {
+        this.newTaskRoot = document.getElementById('new-task-form');
+        this.newTaskTitle = this.newTaskRoot.querySelector('#task-title');
+        this.newTaskCategory = this.newTaskRoot.querySelector('#task-category');
+        this.newTaskDescriptions = this.newTaskRoot.querySelector('#task-descriptions');
+        this.newTaskDate = this.newTaskRoot.querySelector('#task-date');
+        this.newTaskPriority = this.newTaskRoot.querySelector('#task-priority');
+        this.newTaskAction = document.querySelector('#fab > [data-action="add-task"]');
+        this.taskListRoot = document.querySelector('[data-page="home"] .page-body');
+
+        this.newTaskAction.addEventListener('click', () => this.addTask());
+
+        this.renderTasks();
+    },
+
+    addTask() {
+        const title = this.newTaskTitle.value;
+        const category = this.newTaskCategory.value;
+        const descriptions = this.newTaskDescriptions.value;
+        const date = this.newTaskDate.value;
+        const priority = this.newTaskPriority.value;
+
+        if (title.trim().length <= 0) {
+            this.newTaskTitle.classList.add('error');
+            this.newTaskTitle.focus();
+            TOAST.add('عنوان نمیتواند خالی باشد', 'error', 'bl');
+            return
+        }
+
+        if (title.trim().length > 100) {
+            this.newTaskTitle.classList.add('error');
+            this.newTaskTitle.focus();
+            TOAST.add('کارکتر بیش از حد مجاز', 'error', 'bl');
+            return
+        }
+
+        if (date.trim().length <= 0) {
+            this.newTaskDate.classList.add('error');
+            this.newTaskDate.focus();
+            TOAST.add('تاریخ نمیتواند خالی باشد', 'error', 'bl');
+            return
+        }
+
+        const newTask = {
+            id: Date.now(),
+            title, category, descriptions, date, priority,
+            completed: false,
+            createdAt: new Date().toISOString(),
+        };
+
+        this.saveTask(newTask);
+        PAGES.open('home', false)
+    },
+
+    async saveTask(task) {
+        try {
+            const tasks = await this.getTasks();
+            tasks.push(task);
+            await localforage.setItem('tasks', tasks);
+
+            TOAST.add('فعالیت با موفقیت اضافه شد', 'success', 'bl');
+            this.resetForm();
+            this.renderTasks();
+
+            if (this.onTaskAdded) {
+                this.onTaskAdded(task);
+            }
+
+        } catch (error) {
+            TOAST.add('خطا در ذخیره فعالیت', 'error', 'bl');
+        }
+    },
+
+    async getTasks() {
+        try {
+            const tasks = await localforage.getItem('tasks');
+            return tasks || [];
+        } catch (error) {
+            console.error('❌ خطا در دریافت تسک‌ها:', error);
+            return [];
+        }
+    },
+
+    resetForm() {
+        this.newTaskTitle.value = '';
+        this.newTaskCategory.value = 'study';
+        this.newTaskDescriptions.value = '';
+        this.newTaskDate.value = '';
+        this.newTaskPriority.value = 'medium';
+        this.newTaskTitle.focus();
+
+        this.newTaskTitle.classList.remove('error');
+        this.newTaskDate.classList.remove('error');
+    },
+
+    async renderTasks() {
+        const tasks = await this.getTasks();
+
+        if (!this.taskListRoot) return;
+
+        if (tasks.length === 0) {
+            this.taskListRoot.innerHTML = `
+                <div class="empty-state">
+                    <span class="empty-icon symbol"> content_paste_off </span>
+                    <p class="empty-text">هیچ فعالیتی ثبت نشده است</p>
+                    <p class="empty-hint">برای افزودن فعالیت جدید، دکمه + را بزنید</p>
+                </div>
+            `;
+            return;
+        }
+
+        tasks.sort((a, b) => b.id - a.id);
+
+        let html = `<div class="task-list">`;
+
+        tasks.forEach(task => {
+            const priorityLabel = {
+                low: '🟢 کم',
+                medium: '🟡 متوسط',
+                high: '🔴 بالا'
+            };
+
+            const categoryLabel = {
+                study: '📚 مطالعه',
+                work: '💼 کار',
+                exercise: '🏋️ ورزش',
+                rest: '😌 استراحت',
+                fun: '🎉 تفریح',
+                sleep: '😴 خواب',
+                other: '📌 سایر'
+            };
+
+            html += `
+    <div class="task-item ${task.completed ? 'completed' : ''} priority-${task.priority}" data-id="${task.id}">
+        <div class="task-info">
+            <div class="task-header">
+                <span class="task-title">${task.title}</span>
+            </div>
+            <div class="task-meta">
+                <span class="task-category category-${task.category}">${categoryLabel[task.category] || task.category}</span>
+                <span class="task-date">${task.date}</span>
+            </div>
+            ${task.descriptions ? `<p class="task-desc">${task.descriptions}</p>` : ''}
+        </div>
+        <div class="task-actions">
+            <button class="task-toggle" data-action="toggle" data-id="${task.id}">
+                <span class="symbol">${task.completed ? 'Undo' : 'Done'}</span>
+            </button>
+            <button class="task-delete" data-action="delete" data-id="${task.id}">
+                <span class="symbol">Delete</span>
+            </button>
+        </div>
+    </div>
+`;
+        });
+
+        html += `</div>`;
+        this.taskListRoot.innerHTML = html;
+
+        this.taskListRoot.querySelectorAll('[data-action="toggle"]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.dataset.id);
+                this.toggleTask(id);
+            });
+        });
+
+        this.taskListRoot.querySelectorAll('[data-action="delete"]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.dataset.id);
+                this.deleteTask(id);
+            });
+        });
+    },
+
+    async toggleTask(id) {
+        try {
+            const tasks = await this.getTasks();
+            const task = tasks.find(t => t.id === id);
+            if (!task) {
+                TOAST.add('فعالیت پیدا نشد', 'error', 'bl');
+                return;
+            }
+
+            task.completed = !task.completed;
+            await localforage.setItem('tasks', tasks);
+
+            const status = task.completed ? 'انجام شد' : 'به لیست بازگشت';
+            TOAST.add(`✅ فعالیت "${task.title}" ${status}`, 'success', 'bl');
+            this.renderTasks();
+
+        } catch (error) {
+            console.error('❌ خطا:', error);
+            TOAST.add('خطا در تغییر وضعیت', 'error', 'bl');
+        }
+    },
+
+    async deleteTask(id) {
+        const tasks = await this.getTasks();
+        const task = tasks.find(t => t.id === id);
+        if (!task) {
+            TOAST.add('فعالیت پیدا نشد', 'error', 'bl');
+            return;
+        }
+
+        CONFIRM.open({
+            title: 'حذف فعالیت',
+            message: `آیا از حذف "${task.title}" مطمئن هستید؟`,
+            confirmText: '🗑️ حذف',
+            cancelText: 'انصراف',
+            onConfirm: async () => {
+                const filtered = tasks.filter(t => t.id !== id);
+                await localforage.setItem('tasks', filtered);
+                TOAST.add(`🗑️ فعالیت "${task.title}" حذف شد`, 'info', 'bl');
+                this.renderTasks();
+            },
+        });
+    },
+
+    async getCount() {
+        const tasks = await this.getTasks();
+        return tasks.length;
+    },
+
+    async getCompletedCount() {
+        const tasks = await this.getTasks();
+        return tasks.filter(t => t.completed).length;
+    },
+
+    async getPendingCount() {
+        const tasks = await this.getTasks();
+        return tasks.filter(t => !t.completed).length;
+    },
+
+    onTaskAdded: null,
+};
+
 // --- App ----------------------------------------------------------
 THEME.init();
 STATUSBAR.init();
@@ -535,12 +856,22 @@ SIDEBAR.init();
 TIME.init();
 PAGES.init();
 DATEPICKER.init();
+TOAST.init();
+CONFIRM.init();
+TASK.init();
 
 PAGES.onload = (pagename) => {
-    const fab = document.querySelector('#fab');
-    if (pagename == 'new-task') {
-        if (fab.classList.contains('active')) fab.classList.remove('active')
-    } else {
-        if (!fab.classList.contains('active')) fab.classList.add('active')
+    const fab = document.querySelectorAll('#fab>*');
+
+    fab.forEach(btn => { if (btn.classList.contains('active')) btn.classList.remove('active') })
+
+    switch (pagename) {
+        case 'home':
+            document.querySelector('#fab [data-action="new-task"]').classList.add('active');
+            break;
+
+        case 'new-task':
+            document.querySelector('#fab [data-action="add-task"]').classList.add('active');
+            break;
     }
 }
