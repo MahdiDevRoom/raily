@@ -6,9 +6,7 @@ export default {
 
         this.tabs.forEach(tab => {
             tab.onclick = () => {
-                const tabName = tab.dataset.tab;
-                this.tab(tabName);
-                this.dispatchEvent('open', tabName);
+                this.tab(tab.dataset.tab);
             };
         });
 
@@ -17,10 +15,18 @@ export default {
 
     tab(name) {
         this.current = name;
+
         this.tabs.forEach(tab => {
-            tab.classList.toggle('active', tab.dataset.tab === name);
+            tab.classList.toggle(
+                'active',
+                tab.dataset.tab === name
+            );
         });
-        this.dispatchEvent('open', name);
+
+        this.target.dispatchEvent(
+            new CustomEvent('open', { detail: name })
+        );
+
         return this;
     },
 
@@ -28,11 +34,10 @@ export default {
         return this.current || null;
     },
 
-    dispatchEvent(name, detail = {}) {
-        this.target.dispatchEvent(new CustomEvent(name, { detail }));
-    },
-
     set onopen(callback) {
-        this.target.addEventListener('open', (e) => callback(e.detail));
-    },
+        this.target.addEventListener(
+            'open',
+            e => callback(e.detail)
+        );
+    }
 };

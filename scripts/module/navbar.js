@@ -6,9 +6,7 @@ export default {
 
         this.navs.forEach(nav => {
             nav.onclick = () => {
-                const navName = nav.dataset.nav;
-                this.nav(navName);
-                this.dispatchEvent('open', navName);
+                this.nav(nav.dataset.nav);
             };
         });
 
@@ -17,10 +15,18 @@ export default {
 
     nav(name) {
         this.current = name;
+
         this.navs.forEach(nav => {
-            nav.classList.toggle('active', nav.dataset.nav === name);
+            nav.classList.toggle(
+                'active',
+                nav.dataset.nav === name
+            );
         });
-        this.dispatchEvent('open', name);
+
+        this.target.dispatchEvent(
+            new CustomEvent('open', { detail: name })
+        );
+
         return this;
     },
 
@@ -28,11 +34,10 @@ export default {
         return this.current || null;
     },
 
-    dispatchEvent(name, detail = {}) {
-        this.target.dispatchEvent(new CustomEvent(name, { detail }));
-    },
-
     set onopen(callback) {
-        this.target.addEventListener('open', (e) => callback(e.detail));
-    },
+        this.target.addEventListener(
+            'open',
+            e => callback(e.detail)
+        );
+    }
 };

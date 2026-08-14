@@ -1,0 +1,100 @@
+#confirm {
+    direction: rtl;
+
+    .fg {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        translate: -50% -50%;
+        z-index: 30;
+        width: 300px;
+        max-width: 90%;
+        max-height: 90%;
+        background: var(--surface);
+        border-radius: 32px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: stretch;
+
+
+        scale: 0.5;
+        touch-action: none;
+        pointer-events: none;
+        opacity: 0;
+
+        .header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid var(--surface-variant);
+
+            .title {
+                font-size: 24px;
+                font-weight: 700;
+            }
+        }
+
+        .body {
+            padding: 16px;
+            overflow: hidden auto;
+        }
+
+        .footer {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            justify-content: right;
+            align-items: center;
+            padding: 8px;
+            gap: 8px;
+            border-top: 1px solid var(--surface-variant);
+
+
+            button {
+                background: var(--surface-container);
+                color: var(--on-surface-container);
+                border-radius: 24px;
+
+                &.confirm {
+                    background: var(--primary-container);
+                    color: var(--on-primary-container);
+                }
+            }
+
+
+        }
+    }
+
+    .bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+        pointer-events: none;
+        background: var(--glass);
+        backdrop-filter: blur(24px);
+        opacity: 0;
+        z-index: 20;
+    }
+
+    &.active {
+
+        .fg {
+            opacity: 1;
+            scale: 1;
+            touch-action: auto;
+            pointer-events: all;
+        }
+
+        .bg {
+            opacity: 1;
+            touch-action: auto;
+            pointer-events: all;
+        }
+    }
+}

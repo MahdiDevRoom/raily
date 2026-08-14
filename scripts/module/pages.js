@@ -2,29 +2,46 @@ export default {
     init() {
         this.root = document.getElementById('pages');
         this.target = new EventTarget();
+        return this;
     },
 
-    open(name, addHistory = true) {
-        const target = this.root.querySelector(`[data-page="${name}"]`);
-        const allPages = this.root.querySelectorAll('[data-page]');
+    open(name, history = true) {
+        const target =
+            this.root.querySelector(`[data-page="${name}"]`);
 
-        if (target) {
-            allPages.forEach(elm => { if (elm.classList.contains('active')) elm.classList.remove('active') })
-            if (!target.classList.contains('active')) target.classList.add('active')
+        if (!target) return this;
+
+        this.root
+            .querySelectorAll('[data-page]')
+            .forEach(page => {
+                page.classList.toggle(
+                    'active',
+                    page === target
+                );
+            });
+
+        if (history && this.current !== name) {
+            window.history.pushState(name, '');
         }
 
-        this.dispatchEvent('open', name);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-
-        if (addHistory && this.current !== name) history.pushState(name, "");
         this.current = name;
-    },
 
-    dispatchEvent(name, detail = {}) {
-        this.target.dispatchEvent(new CustomEvent(name, { detail }));
+        this.target.dispatchEvent(
+            new CustomEvent('open', { detail: name })
+        );
+
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+
+        return this;
     },
 
     set onopen(callback) {
-        this.target.addEventListener('open', (e) => callback(e.detail));
-    },
-}
+        this.target.addEventListener(
+            'open',
+            e => callback(e.detail)
+        );
+    }
+};

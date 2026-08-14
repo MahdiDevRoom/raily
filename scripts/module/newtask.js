@@ -1,159 +1,206 @@
-import DATEPICKER from "./datepicker.js"
-import NAVBAR from "./navbar.js"
-import STATUSBAR from "./statusbar.js"
-import SWITCH from "./switch.js"
-import TASK from "./task.js"
-import TOAST from "./toast.js"
+import DATEPICKER from "./datepicker.js";
+import NAVBAR from "./navbar.js";
+import STATUSBAR from "./statusbar.js";
+import SWITCH from "./switch.js";
+import TOAST from "./toast.js";
 
 export default {
     async init() {
         this.elements = {
-            root: document.querySelector('#tabs [data-tab="task"] .form'),
-            title: document.getElementById('task-form-title'),
-            category: document.getElementById('category-switch'),
-            note: document.getElementById('task-form-note'),
-            date: document.getElementById('task-form-date'),
-            dateButton: document.getElementById('task-form-date-button'),
-            submit: document.getElementById('task-form-submit'),
+            title: document.getElementById("task-form-title"),
+            note: document.getElementById("task-form-note"),
+            date: document.getElementById("task-form-date"),
+            dateButton: document.getElementById("task-form-date-button"),
+            submit: document.getElementById("task-form-submit")
         };
 
-        this.prioritySwitch = new SWITCH('label-switch');
-        this.categorySwitch = new SWITCH('category-switch', true);
-        
-        this.setDefaultDate();
-        this.attachEvents();
+        this.priority = new SWITCH("label-switch");
+        this.categories = new SWITCH("category-switch", true);
+        this.target = new EventTarget();
+
+        this.store = localforage.createInstance({
+            name: "RailyDB",
+            storeName: "tasks"
+        });
+
+        this._setDefaultDate();
+        this._bindEvents();
 
         return this;
     },
 
-    setDefaultDate() {
-        const today = new Date();
-        const persian = new Intl.DateTimeFormat('fa-IR', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            numberingSystem: 'latn'
-        }).format(today);
-        this.elements.date.value = persian;
+    _setDefaultDate() {
+        const date = new Intl.DateTimeFormat("fa-IR", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            numberingSystem: "latn"
+        }).format(new Date());
+
+        this.elements.date.value = date;
     },
 
-    attachEvents() {
+    _bindEvents() {
         this.elements.submit.onclick = () => this.submit();
-        
-        this.elements.dateButton.onclick = () => this.elements.date.focus();
 
-        this.elements.title.onkeydown = (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                this.submit();
-            }
-        };
-
-        this.elements.note.onkeydown = (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                this.submit();
-            }
+        this.elements.dateButton.onclick = () => {
+            this.elements.date.focus();
         };
 
         this.elements.date.onfocus = () => {
-            DATEPICKER.open((date) => {
+            DATEPICKER.open(date => {
                 this.elements.date.value = date;
             });
         };
+
+        this.elements.title.addEventListener("keydown", e => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                this.submit();
+            }
+        });
+
+        this.elements.note.addEventListener("keydown", e => {
+            if (e.key === "Enter" && e.ctrlKey) {
+                e.preventDefault();
+                this.submit();
+            }
+        });
     },
 
-    getPriority() {
-        return this.prioritySwitch.getActive() || 'none';
+    async _getTasks() {
+        return (await this.store.getItem("tasks")) || [];
     },
 
-    getSelectedCategories() {
-        return this.categorySwitch.getActive() || [];
+    async _saveTasks(tasks) {
+        await this.store.setItem("tasks", tasks);
     },
 
-    validate() {
-        const title = this.elements.title.value.trim();
-        const date = this.elements.date.value.trim();
+    _getData() {
+        const categories = this.categories.getActive();
 
-        if (!title) {
-            this.elements.title.classList.add('error');
+        return {
+            title: this.elements.title.value.trim(),
+            category: categories.length ? categories : ["other"],
+            note: this.elements.note.value.trim(),
+            date: this.elements.date.value,
+            priority: this.priority.getActive() || "none"
+        };
+    },
+
+    _validate(data) {
+        this.elements.title.classList.remove("error");
+        this.elements.date.classList.remove("error");
+
+        if (!data.title) {
+            this.elements.title.classList.add("error");
             this.elements.title.focus();
-            TOAST.up('عنوان فعالیت الزامی است', 'warning');
-            STATUSBAR.set('warning');
-            return false;
+            return "عنوان فعالیت الزامی است";
         }
 
-        if (!date) {
-            this.elements.date.classList.add('error');
-            TOAST.up('تاریخ الزامی است', 'warning');
-            STATUSBAR.set('warning');
-            return false;
+        if (!data.date) {
+            this.elements.date.classList.add("error");
+            return "تاریخ الزامی است";
         }
 
-        return true;
+        return null;
     },
 
     async submit() {
-        if (!this.validate()) return;
+        const data = this._getData();
+        const error = this._validate(data);
 
-        let categories = this.getSelectedCategories();
-        
-        if (categories.length === 0) {
-            categories = ['other'];
-            this.categorySwitch.setChecked(['other']);
+        if (error) {
+            TOAST.up(error, "warning");
+            STATUSBAR.set("warning");
+            return;
         }
 
-        const data = {
-            title: this.elements.title.value.trim(),
-            category: categories,
-            note: this.elements.note.value.trim(),
-            date: this.elements.date.value,
-            priority: this.getPriority()
-        };
-
         try {
-            const newTask = await TASK.add(data);
-            TOAST.up('✅ فعالیت با موفقیت ثبت شد', 'success');
-            STATUSBAR.set('success');
-            setTimeout(() => STATUSBAR.set('surface'), 3000);
+            const tasks = await this._getTasks();
+            const now = new Date().toISOString();
+
+            const newTask = {
+                id: Date.now(),
+                ...data,
+                completed: false,
+                createdAt: now,
+                updatedAt: now
+            };
+
+            tasks.push(newTask);
+
+            await this._saveTasks(tasks);
+
+            TOAST.up("فعالیت با موفقیت ثبت شد", "success");
+            STATUSBAR.set("success");
+
+            setTimeout(() => {
+                STATUSBAR.set("surface");
+            }, 3000);
+
             this.reset();
-            NAVBAR.nav('home');
-            
-            if (this.onSuccess) {
-                this.onSuccess(newTask);
-            }
+
+            NAVBAR.nav("home");
+
+            this._dispatchEvent("success", newTask);
         } catch (error) {
-            console.error('خطا در ثبت تسک:', error);
-            TOAST.up('❌ خطا در ثبت فعالیت', 'error');
+            console.error(error);
+            TOAST.up("خطا در ثبت فعالیت", "error");
+            STATUSBAR.set("error");
+            this._dispatchEvent("error", error);
         }
     },
 
     reset() {
-        this.elements.title.value = '';
-        this.elements.note.value = '';
-        this.setDefaultDate();
-        this.elements.title.focus();
-        this.elements.title.classList.remove('error');
-        this.elements.date.classList.remove('error');
+        this.elements.title.value = "";
+        this.elements.note.value = "";
+        this.elements.title.classList.remove("error");
+        this.elements.date.classList.remove("error");
 
-        this.prioritySwitch.active('none');
-        this.categorySwitch.setChecked(['other']);
+        this._setDefaultDate();
+
+        this.priority.active("none");
+        this.categories.setChecked(["other"]);
+
+        this.elements.title.focus();
     },
 
     fill(data) {
-        this.elements.title.value = data.title || '';
-        this.elements.note.value = data.note || '';
-        this.elements.date.value = data.date || '';
+        if (!data) return;
+
+        this.elements.title.value = data.title || "";
+        this.elements.note.value = data.note || "";
+        this.elements.date.value = data.date || "";
 
         if (data.priority) {
-            this.prioritySwitch.active(data.priority);
+            this.priority.active(data.priority);
         }
 
         if (data.category) {
-            const cats = Array.isArray(data.category) ? data.category : [data.category];
-            this.categorySwitch.setChecked(cats);
+            const categories = Array.isArray(data.category)
+                ? data.category
+                : [data.category];
+
+            this.categories.setChecked(categories);
         }
     },
 
-    onSuccess: null
+    _dispatchEvent(name, detail = {}) {
+        this.target.dispatchEvent(
+            new CustomEvent(name, { detail })
+        );
+    },
+
+    set onsuccess(callback) {
+        this.target.addEventListener("success", e => {
+            callback(e.detail);
+        });
+    },
+
+    set onerror(callback) {
+        this.target.addEventListener("error", e => {
+            callback(e.detail);
+        });
+    }
 };

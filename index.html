@@ -21,8 +21,8 @@
     <div id="appbar">
         <div class="fg">
             <div class="text">
-                <div class="title"> رایلی </div>
-                <div class="sub-title"> مدریت فعالیت‌های روزانه</div>
+                <div class="title"> سلام </div>
+                <div class="sub-title"> رایلی - مدریت فعالیت‌های روزانه</div>
             </div>
             <div class="time">
                 <div id="clock"></div>
@@ -33,61 +33,137 @@
 
     <!--- Pages ------------------------------------------------------>
     <div id="pages">
+
         <!-- Home Page -->
         <div data-page="home">
             <div class="fg">
-                <div class="title"> خانه </div>
+
+                <div class="mood">
+                    <div class="content">
+                        <div class="title">حال امروز</div>
+                        <div class="value"></div>
+                    </div>
+
+                    <button class="add symbol" type="button">
+                        add_reaction
+                    </button>
+                </div>
+
+                <div class="task-box">
+
+                    <div class="filter">
+
+                        <div class="filter-row">
+                            <div class="label">دسته‌بندی</div>
+
+                            <div id="home-category-filter" class="switch">
+                                <div data-case="all" class="active">همه</div>
+                                <div data-case="exercise">تمرین</div>
+                                <div data-case="study">مطالعه</div>
+                                <div data-case="lesson">درس</div>
+                                <div data-case="work">کار</div>
+                                <div data-case="hobby">تفریح</div>
+                                <div data-case="other">سایر</div>
+                            </div>
+                        </div>
+
+                        <div class="filter-row">
+                            <div class="label">اهمیت</div>
+
+                            <div id="home-priority-filter" class="switch">
+                                <div data-case="all" class="active">همه</div>
+                                <div data-case="none">بدون اولویت</div>
+                                <div data-case="low">کم</div>
+                                <div data-case="medium">معمولی</div>
+                                <div data-case="high">بالا</div>
+                            </div>
+                        </div>
+
+                        <div class="filter-row">
+                            <div class="label">زمان</div>
+
+                            <div id="home-date-filter" class="switch">
+                                <div data-case="all" class="active">همه</div>
+                                <div data-case="past">گذشته</div>
+                                <div data-case="today">امروز</div>
+                                <div data-case="week">این هفته</div>
+                                <div data-case="month">این ماه</div>
+                                <div data-case="year">امسال</div>
+                                <div data-case="future">آینده</div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="tasks"></div>
+
+                </div>
+
             </div>
         </div>
 
         <!-- New Page -->
         <div data-page="new">
             <div class="fg">
+
                 <div id="tabbar">
                     <div data-tab="task">
                         <div class="symbol"> add_task </div>
                         <div class="label"> فعالیت </div>
                     </div>
+
                     <div data-tab="mood">
                         <div class="symbol"> add_reaction </div>
                         <div class="label"> مود </div>
                     </div>
                 </div>
+
                 <div id="tabs">
+
                     <div data-tab="task">
                         <div class="title"> افزودن فعالیت </div>
+
                         <div class="form form-grid">
+
                             <!-- title -->
                             <label for="task-form-title"> عنوان فعالیت </label>
                             <input id="task-form-title" autocomplete="off" type="text">
 
                             <!-- category -->
                             <label for="task-form-category"> دسته بندی </label>
+
                             <div id="category-switch" class="switch">
+
                                 <div data-case="exercise">
                                     <div class="symbol"> exercise </div>
                                     <div class="label"> تمرین </div>
                                 </div>
+
                                 <div data-case="study">
                                     <div class="symbol"> book_ribbon </div>
                                     <div class="label"> مطالعه </div>
                                 </div>
+
                                 <div data-case="lesson">
                                     <div class="symbol"> school </div>
                                     <div class="label"> درس </div>
                                 </div>
+
                                 <div data-case="work">
                                     <div class="symbol"> work </div>
                                     <div class="label"> کار </div>
                                 </div>
+
                                 <div data-case="hobby">
                                     <div class="symbol"> stadia_controller </div>
                                     <div class="label"> تفریح </div>
                                 </div>
+
                                 <div data-case="other">
                                     <div class="symbol"> keep </div>
                                     <div class="label"> سایر </div>
                                 </div>
+
                             </div>
 
                             <!-- note -->
@@ -96,18 +172,36 @@
 
                             <!-- date -->
                             <label for="task-form-date"> تاریخ </label>
+
                             <div class="flex">
-                                <button id="task-form-date-button" class="symbol"> event </button>
+                                <button id="task-form-date-button" class="symbol" type="button">
+                                    event
+                                </button>
+
                                 <input id="task-form-date" type="text" readonly>
                             </div>
 
                             <!-- label -->
                             <label> اولویت </label>
+
                             <div id="label-switch" class="switch">
-                                <div data-case="none" class="active"> بدون اولویت </div>
-                                <div data-case="low"> کم </div>
-                                <div data-case="medium"> معمولی </div>
-                                <div data-case="high"> بالا </div>
+
+                                <div data-case="none" class="active">
+                                    بدون اولویت
+                                </div>
+
+                                <div data-case="low">
+                                    کم
+                                </div>
+
+                                <div data-case="medium">
+                                    معمولی
+                                </div>
+
+                                <div data-case="high">
+                                    بالا
+                                </div>
+
                             </div>
 
                             <!-- hr -->
@@ -117,36 +211,49 @@
 
                             <!-- submit -->
                             <div class="row">
-                                <button id="task-form-submit" class="submit"> افزودن </button>
+                                <button id="task-form-submit" class="submit">
+                                    افزودن
+                                </button>
                             </div>
+
                         </div>
                     </div>
+
                     <div data-tab="mood">
                         <div class="title"> ثبت مود </div>
+
                         <div class="form form-grid">
+
                             <!-- mood -->
                             <label> مود </label>
+
                             <div id="mood-switch" class="switch">
+
                                 <div data-case="very-sad">
                                     <div class="symbol"> sentiment_stressed </div>
                                     <div class="label"> خیلی بد </div>
                                 </div>
+
                                 <div data-case="sad">
                                     <div class="symbol"> sentiment_dissatisfied </div>
                                     <div class="label"> بد </div>
                                 </div>
+
                                 <div data-case="okay" class="active">
                                     <div class="symbol"> sentiment_neutral </div>
                                     <div class="label"> نرمال </div>
                                 </div>
+
                                 <div data-case="good">
                                     <div class="symbol"> sentiment_satisfied </div>
                                     <div class="label"> خوب </div>
                                 </div>
+
                                 <div data-case="happy">
                                     <div class="symbol"> sentiment_very_satisfied </div>
                                     <div class="label"> خیلی خوب </div>
                                 </div>
+
                             </div>
 
                             <!-- note -->
@@ -155,8 +262,12 @@
 
                             <!-- date -->
                             <label for="mood-form-date"> تاریخ </label>
+
                             <div class="flex">
-                                <button class="symbol"> event </button>
+                                <button id="mood-form-date-button" class="symbol" type="button">
+                                    event
+                                </button>
+
                                 <input id="mood-form-date" type="text" readonly>
                             </div>
 
@@ -167,71 +278,105 @@
 
                             <!-- submit -->
                             <div class="row">
-                                <button id="task-form-submit" class="submit"> ذخیره </button>
+                                <button id="mood-form-submit" class="submit">
+                                    ذخیره
+                                </button>
                             </div>
+
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
 
         <!-- Status Page -->
         <div data-page="status">
-            <div class="fg">
-                <div class="title"> وضعیت </div>
-            </div>
+            <div class="fg"></div>
         </div>
 
         <!-- Settings Page -->
         <div data-page="settings">
             <div class="fg">
+
                 <div class="title"> تنظیمات </div>
+
                 <div class="body">
+
                     <div class="form form-grid">
-                        <!-- name -->
-                        <label for="settings-form-name"> نام </label>
-                        <input id="settings-form-name" type="text">
 
                         <!-- theme -->
                         <label> سبک </label>
+
                         <div id="theme-switch" class="switch">
+
                             <div data-case="auto">
                                 <span class="symbol"> brightness_auto </span>
                                 <div class="label"> خودکار </div>
                             </div>
+
                             <div data-case="light">
                                 <span class="symbol"> light_mode </span>
                                 <div class="label"> روشن </div>
                             </div>
+
                             <div data-case="dark">
                                 <span class="symbol"> dark_mode </span>
                                 <div class="label"> تیره </div>
                             </div>
+
+                        </div>
+
+                        <!-- name -->
+                        <label for="settings-form-name"> نام </label>
+
+                        <div class="flex">
+
+                            <input id="settings-form-name" type="text">
+
+                            <button id="dettings-form-name-save">
+                                ذخیره
+                            </button>
+
+                            <button id="dettings-form-name-restore">
+                                بازنشانی
+                            </button>
+
                         </div>
 
                         <!-- date -->
                         <label for="settings-form-date"> تاریخ </label>
+
                         <div class="flex">
-                            <button for="settings-form-date" class="symbol"> event </button>
-                            <input id="settings-form-name" type="text" readonly>
+
+                            <button id="settings-form-date-button" class="symbol" type="button">
+                                event
+                            </button>
+
+                            <input id="settings-form-date" type="text" readonly>
+
                         </div>
 
-                        <!-- hr -->
-                        <div class="row">
-                            <hr>
-                        </div>
-
-                        <!-- submit -->
-                        <div class="row">
-                            <button id="settings-form-submit" class="submit"> اعمال </button>
-                        </div>
                     </div>
+
                     <hr>
+
                     <div class="dangerzone">
-                        <button id="reaset-settings" class="error"> بازنشانی تنظیمات </button>
-                        <button id="clear-data" class="error"> پاک کردن همه اطلاعات </button>
-                        <button id="reaset-all" class="error"> بازنشانی همه </button>
+
+                        <button id="reaset-settings" class="error">
+                            بازنشانی تنظیمات
+                        </button>
+
+                        <button id="clear-data" class="error">
+                            پاک کردن همه اطلاعات
+                        </button>
+
+                        <button id="reaset-all" class="error">
+                            بازنشانی همه
+                        </button>
+
                     </div>
+
                 </div>
             </div>
         </div>
@@ -240,68 +385,134 @@
 
     <!--- Navbar ----------------------------------------------------->
     <div id="navbar">
+
         <div class="fg">
+
             <div data-nav="home">
                 <div class="symbol"> home </div>
                 <div class="label"> خانه </div>
             </div>
+
             <div data-nav="new">
-                <div class="symbol">add</div>
+                <div class="symbol"> add </div>
                 <div class="label"> ثبت جدید </div>
             </div>
+
             <div data-nav="status">
                 <div class="symbol"> chart_data </div>
                 <div class="label"> وضعیت </div>
             </div>
+
             <div data-nav="settings">
                 <div class="symbol"> settings </div>
                 <div class="label"> تنظیمات </div>
             </div>
+
         </div>
+
     </div>
 
     <!--- Datepicker ------------------------------------------------->
     <div id="datepicker">
+
         <div class="fg">
+
             <div class="header">
-                <div class="back"> <span class="symbol"> arrow_forward </span> </div>
+
+                <div class="back">
+                    <span class="symbol"> arrow_forward </span>
+                </div>
+
                 <div class="day"></div>
                 <div class="month"></div>
                 <div class="year"></div>
-                <div class="next"> <span class="symbol"> arrow_back </span> </div>
+
+                <div class="next">
+                    <span class="symbol"> arrow_back </span>
+                </div>
+
             </div>
+
             <div class="body">
+
                 <div class="day-view">
                     <div class="weekday"></div>
                     <div class="days"></div>
                 </div>
+
                 <div class="month-view">
                     <div class="months"></div>
                 </div>
+
                 <div class="year-view">
                     <div class="years"></div>
                 </div>
+
             </div>
+
             <div class="footer">
+
                 <div>
-                    <button class="submit"> انتخاب </button>
+                    <button class="submit">
+                        انتخاب
+                    </button>
                 </div>
+
                 <div>
-                    <button class="reset"> ریست </button>
-                    <button class="cancel"> کنسل </button>
+                    <button class="reset">
+                        ریست
+                    </button>
+
+                    <button class="cancel">
+                        کنسل
+                    </button>
                 </div>
+
             </div>
+
         </div>
+
         <div class="bg"></div>
+
+    </div>
+
+    <!--- Confirm ----------------------------------------------------->
+    <div id="confirm">
+
+        <div class="fg">
+
+            <div class="header">
+                <div class="title"> تایید </div>
+            </div>
+
+            <div class="body">
+                <div class="message"></div>
+            </div>
+
+            <div class="footer">
+
+                <button class="confirm">
+                    تایید
+                </button>
+
+                <button class="cancel">
+                    انصراف
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="bg"></div>
+
     </div>
 
     <!--- TOAST ------------------------------------------------------->
     <div id="toast"></div>
 
     <!--- Script ------------------------------------------------------>
-    <script type="module" src="scripts/app.js">
+    <script type="module" src="scripts/app.js"></script>
 
-    </script>
 </body>
 
 </html>

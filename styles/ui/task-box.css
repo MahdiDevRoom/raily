@@ -1,0 +1,112 @@
+[data-page="home"] .task-box {
+
+    .filter {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .filter-row {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        .label {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        .switch {
+            overflow-x: auto;
+            justify-content: flex-start;
+            scrollbar-width: none;
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
+        }
+    }
+
+    .tasks {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .task {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        background: var(--surface-container);
+        color: var(--on-surface-container);
+        border-radius: 16px;
+        padding: 14px 16px;
+        overflow: hidden;
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .title {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+            padding: 0;
+
+            &::before {
+                display: none;
+            }
+        }
+
+        .note {
+            font-size: 13px;
+            opacity: 0.7;
+        }
+
+        .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 12px;
+            opacity: 0.6;
+        }
+
+        &::before {
+            content: "";
+            position: absolute;
+            inset-block: 0;
+            inset-inline-start: 0;
+            width: 4px;
+            background: var(--outline);
+        }
+
+        &.priority-low::before {
+            background: var(--primary);
+        }
+
+        &.priority-medium::before {
+            background: var(--warning);
+        }
+
+        &.priority-high::before {
+            background: var(--error);
+        }
+
+        &.completed {
+            opacity: 0.55;
+
+            .title {
+                text-decoration: line-through;
+            }
+        }
+    }
+
+    .empty {
+        padding: 32px 16px;
+        text-align: center;
+        opacity: 0.6;
+    }
+}

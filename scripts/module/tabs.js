@@ -2,26 +2,36 @@ export default {
     init() {
         this.root = document.getElementById('tabs');
         this.target = new EventTarget();
+        return this;
     },
 
     open(name) {
-        const target = this.root.querySelector(`[data-tab="${name}"]`);
-        const allTabs = this.root.querySelectorAll('[data-tab]');
+        const tabs = this.root.querySelectorAll('[data-tab]');
 
-        if (target) {
-            allTabs.forEach(elm => { if (elm.classList.contains('active')) elm.classList.remove('active') })
-            if (!target.classList.contains('active')) target.classList.add('active')
-        }
+        tabs.forEach(tab => {
+            tab.classList.toggle(
+                'active',
+                tab.dataset.tab === name
+            );
+        });
 
-        this.dispatchEvent('open', name);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    },
+        this.current = name;
+        this.target.dispatchEvent(
+            new CustomEvent('open', { detail: name })
+        );
 
-    dispatchEvent(name, detail = {}) {
-        this.target.dispatchEvent(new CustomEvent(name, { detail }));
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+
+        return this;
     },
 
     set onopen(callback) {
-        this.target.addEventListener('open', (e) => callback(e.detail));
-    },
-}
+        this.target.addEventListener(
+            'open',
+            e => callback(e.detail)
+        );
+    }
+};

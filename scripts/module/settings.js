@@ -1,188 +1,263 @@
-import THEME from "./theme.js"
-import TOAST from "./toast.js"
-import STATUSBAR from "./statusbar.js"
-import TASK from "./task.js"
-import MOOD from "./mood.js"
-import SWITCH from "./switch.js"
+import TOAST from "./toast.js";
+import SWITCH from "./switch.js";
+import DATEPICKER from "./datepicker.js";
+import CONFIRM from "./confirm.js";
 
 export default {
     async init() {
-        this.elements = {
+        this.elm = {
+            root: document.documentElement,
+            theme: new SWITCH('theme-switch'),
             name: document.getElementById('settings-form-name'),
-            theme: document.getElementById('theme-switch'),
-            time: document.querySelector('#settings-form-time'),
-            submit: document.getElementById('settings-form-submit'),
-            resetSettings: document.getElementById('reaset-settings'),
-            clearData: document.getElementById('clear-data'),
-            resetAll: document.getElementById('reaset-all'),
+            nameSave: document.getElementById('dettings-form-name-save'),
+            nameRestore: document.getElementById('dettings-form-name-restore'),
+            date: document.getElementById('settings-form-date'),
+            dateButton: document.querySelector('#settings-form-date').previousElementSibling
         };
 
-        this.themeSwitch = new SWITCH('theme-switch');
-        this.themeSwitch.active(THEME.theme);
-        this.themeSwitch.case = (theme) => THEME.set(theme);
-        
-        this.setDateTime();
-        
-        await this.loadSettings();
-        
-        this.attachEvents();
+        this.db = localforage.createInstance({
+            name: 'RailyDB',
+            storeName: 'settings'
+        });
+
+        this.target = new EventTarget();
+
+        await this._loadSettings();
+        this._setupEvents();
 
         return this;
     },
 
-    setDateTime() {
-        const now = new Date();
-        const persianDate = new Intl.DateTimeFormat('fa-IR', {
+    _getToday() {
+        return new Intl.DateTimeFormat('fa-IR', {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit',
             numberingSystem: 'latn'
-        }).format(now);
-        
-        const persianTime = new Intl.DateTimeFormat('fa-IR', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false,
-            numberingSystem: 'latn'
-        }).format(now);
-
-        this.elements.time.value = persianTime;
+        }).format(new Date());
     },
 
-    async loadSettings() {
-        const settings = await this.getSettings();
-        if (settings.name) {
-            this.elements.name.value = settings.name;
+    async _loadSettings() {
+        let settings = await this.db.getItem('settings');
+
+        if (!settings || typeof settings !== 'object') {
+            settings = {
+                name: 'مهمان',
+                theme: 'auto',
+                timeOffset: 0,
+                customDate: null
+            };
+
+            await this.db.setItem('settings', settings);
         }
 
-        this.themeSwitch.active(THEME.theme);
-        this.themeSwitch.case = (theme) => {
-            THEME.set(theme);
+        this.settings = settings;
+        this.timeOffset = Number(settings.timeOffset) || 0;
+
+        const theme = settings.theme || 'auto';
+
+        this.elm.root.setAttribute('data-theme', theme);
+        this.elm.theme.active(theme);
+
+        this.elm.theme.case = async newTheme => {
+            this.settings.theme = newTheme;
+
+            await this.db.setItem('settings', this.settings);
+
+            this.elm.root.setAttribute('data-theme', newTheme);
+
+            this._dispatchEvent('themeChange', newTheme);
+
+            const names = {
+                auto: 'خودکار',
+                light: 'روشن',
+                dark: 'تیره'
+            };
+
+            TOAST.up(`به ${names[newTheme]} تغییر کرد`, 'success');
         };
+
+        this.elm.name.value = settings.name || 'مهمان';
+        this.elm.date.value = settings.customDate || this._getToday();
     },
 
-    async getSettings() {
-        const store = localforage.createInstance({
-            name: 'RailyDB',
-            storeName: 'settings'
-        });
-        const settings = await store.getItem('settings');
-        return settings || {};
-    },
+    _setupEvents() {
+        this.elm.nameSave.onclick = async () => {
+            const name = this.elm.name.value.trim();
 
-    async saveSettings(data) {
-        const store = localforage.createInstance({
-            name: 'RailyDB',
-            storeName: 'settings'
-        });
-        await store.setItem('settings', data);
-        return data;
-    },
-
-    attachEvents() {
-        this.elements.submit.onclick = () => this.submit();
-
-        this.elements.resetSettings.onclick = () => this.resetSettings();
-
-        this.elements.clearData.onclick = () => this.clearAllData();
-
-        this.elements.resetAll.onclick = () => this.resetAll();
-
-        this.elements.name.onkeydown = (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                this.submit();
+            if (!name) {
+                this.elm.name.classList.add('error');
+                TOAST.up('نام را وارد کنید', 'warning');
+                return;
             }
+
+            this.settings.name = name;
+
+            await this.db.setItem('settings', this.settings);
+
+            this.elm.name.classList.remove('error');
+
+            TOAST.up('نام با موفقیت ذخیره شد', 'success');
+
+            this._dispatchEvent('change', this.settings);
+        };
+
+        this.elm.nameRestore.onclick = () => {
+            this.elm.name.value = this.settings.name || 'مهمان';
+            this.elm.name.classList.remove('error');
+        };
+
+        this.elm.dateButton.onclick = () => {
+            this.elm.date.focus();
+        };
+
+        this.elm.date.onfocus = () => {
+            DATEPICKER.open(date => {
+                this.elm.date.value = date;
+                this._setDateOffset(date);
+            });
+        };
+
+        document.getElementById('reaset-settings').onclick = () => {
+            CONFIRM.open({
+                title: 'بازنشانی تنظیمات',
+                message: 'آیا از بازنشانی تنظیمات مطمئن هستید؟',
+                confirmText: 'بله، بازنشانی کن',
+                cancelText: 'انصراف',
+                onConfirm: () => this._resetSettings()
+            });
+        };
+
+        document.getElementById('clear-data').onclick = () => {
+            CONFIRM.open({
+                title: 'پاک کردن همه اطلاعات',
+                message: 'همه اطلاعات پاک خواهد شد!',
+                confirmText: 'بله، پاک کن',
+                cancelText: 'انصراف',
+                onConfirm: () => this._clearAllData()
+            });
+        };
+
+        document.getElementById('reaset-all').onclick = () => {
+            CONFIRM.open({
+                title: 'بازنشانی همه',
+                message: 'همه چیز بازنشانی خواهد شد!',
+                confirmText: 'بله، بازنشانی کن',
+                cancelText: 'انصراف',
+                onConfirm: () => this._resetAll()
+            });
         };
     },
 
-    async submit() {
-        const name = this.elements.name.value.trim();
+    async _setDateOffset(persianDate) {
+        const [year, month, day] = persianDate.split('/').map(Number);
 
-        if (!name) {
-            this.elements.name.classList.add('error');
-            TOAST.up('نام خود را وارد کنید', 'warning');
-            STATUSBAR.set('warning');
-            return;
-        }
+        const gregorian = DATEPICKER.jalaliToGregorian(
+            year,
+            month,
+            day
+        );
 
-        try {
-            await this.saveSettings({ name });
-            TOAST.up('✅ تنظیمات با موفقیت ذخیره شد', 'success');
-            STATUSBAR.set('success');
-            setTimeout(() => STATUSBAR.set('surface'), 3000);
-            this.elements.name.classList.remove('error');
-        } catch (error) {
-            console.error('خطا در ذخیره تنظیمات:', error);
-            TOAST.up('❌ خطا در ذخیره تنظیمات', 'error');
-        }
+        const target = new Date(
+            gregorian.year,
+            gregorian.month - 1,
+            gregorian.day
+        );
+
+        const now = new Date();
+
+        const timeOffset =
+            target.getTime() -
+            new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate()
+            ).getTime();
+
+        this.settings.timeOffset = timeOffset;
+        this.settings.customDate = persianDate;
+        this.timeOffset = timeOffset;
+
+        await this.db.setItem('settings', this.settings);
+
+        this.elm.date.value = persianDate;
+
+        const days = Math.round(timeOffset / 86400000);
+
+        const text =
+            days > 0
+                ? `${days} روز جلوتر`
+                : days < 0
+                    ? `${Math.abs(days)} روز عقب‌تر`
+                    : 'همان روز';
+
+        TOAST.up(`تاریخ برنامه ${text} شد`, 'success');
+
+        this._dispatchEvent('change', this.settings);
     },
 
-    async resetSettings() {
-        if (!confirm('آیا از بازنشانی تنظیمات مطمئن هستید؟')) return;
+    async _resetSettings() {
+        this.settings = {
+            name: 'مهمان',
+            theme: 'auto',
+            timeOffset: 0,
+            customDate: null
+        };
 
-        try {
-            await this.saveSettings({});
-            this.elements.name.value = '';
-            TOAST.up('🔁 تنظیمات بازنشانی شد', 'info');
-            STATUSBAR.set('warning');
-            setTimeout(() => STATUSBAR.set('surface'), 3000);
-        } catch (error) {
-            console.error('خطا در بازنشانی تنظیمات:', error);
-            TOAST.up('❌ خطا در بازنشانی تنظیمات', 'error');
-        }
+        await this.db.setItem('settings', this.settings);
+
+        this.timeOffset = 0;
+
+        this.elm.name.value = 'مهمان';
+        this.elm.date.value = this._getToday();
+
+        this.elm.root.setAttribute('data-theme', 'auto');
+        this.elm.theme.active('auto');
+
+        TOAST.up('تنظیمات بازنشانی شد', 'success');
+
+        this._dispatchEvent('change', this.settings);
     },
 
-    async clearAllData() {
-        if (!confirm('⚠️ همه اطلاعات (تسک‌ها و مودها) پاک خواهد شد! مطمئن هستید؟')) return;
+    async _clearAllData() {
+        const tasks = localforage.createInstance({
+            name: 'RailyDB',
+            storeName: 'tasks'
+        });
 
-        try {
-            await TASK.deleteAll();
-            
-            await MOOD.deleteAll();
-            
-            TOAST.up('🗑️ همه اطلاعات با موفقیت پاک شد', 'success');
-            STATUSBAR.set('success');
-            setTimeout(() => STATUSBAR.set('surface'), 3000);
-            
-            setTimeout(() => location.reload(), 1500);
-        } catch (error) {
-            console.error('خطا در پاک کردن اطلاعات:', error);
-            TOAST.up('❌ خطا در پاک کردن اطلاعات', 'error');
-        }
+        const moods = localforage.createInstance({
+            name: 'RailyDB',
+            storeName: 'moods'
+        });
+
+        await tasks.setItem('tasks', []);
+        await moods.setItem('moods', []);
+
+        TOAST.up('همه اطلاعات پاک شد', 'success');
     },
 
-    async resetAll() {
-        if (!confirm('⚠️ همه چیز (تنظیمات، تسک‌ها و مودها) بازنشانی خواهد شد! مطمئن هستید؟')) return;
-
-        try {
-            await TASK.deleteAll();
-            
-            await MOOD.deleteAll();
-            
-            await this.saveSettings({});
-            
-            localStorage.clear();
-            
-            this.elements.name.value = '';
-            
-            TOAST.up('🔄 همه چیز بازنشانی شد', 'info');
-            STATUSBAR.set('warning');
-            setTimeout(() => STATUSBAR.set('surface'), 3000);
-            
-            setTimeout(() => location.reload(), 1500);
-        } catch (error) {
-            console.error('خطا در بازنشانی همه:', error);
-            TOAST.up('❌ خطا در بازنشانی همه', 'error');
-        }
+    async _resetAll() {
+        await this._clearAllData();
+        await this._resetSettings();
     },
 
-    fill(data) {
-        if (data.name) {
-            this.elements.name.value = data.name;
-        }
+    _dispatchEvent(name, detail = {}) {
+        this.target.dispatchEvent(
+            new CustomEvent(name, { detail })
+        );
     },
 
-    onSuccess: null
+    set onchange(callback) {
+        this.target.addEventListener(
+            'change',
+            e => callback(e.detail)
+        );
+    },
+
+    set onthemechange(callback) {
+        this.target.addEventListener(
+            'themeChange',
+            e => callback(e.detail)
+        );
+    }
 };

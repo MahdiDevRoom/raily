@@ -1,41 +1,69 @@
-// Impoet
-import THEME from './module/theme.js';
-import TIME from './module/time.js';
+import TOAST from './module/toast.js';
+import DATEPICKER from './module/datepicker.js';
+import CONFIRM from './module/confirm.js';
+import STATUSBAR from './module/statusbar.js';
+import APPBAR from './module/appbar.js';
 import PAGES from './module/pages.js';
 import NAVBAR from './module/navbar.js';
 import TABS from './module/tabs.js';
 import TABBAR from './module/tabbar.js';
-import STATUSBAR from './module/statusbar.js';
-import SWITCH from './module/switch.js';
-import DATEPICKER from './module/datepicker.js';
-import TASK from './module/task.js';
-import MOOD from './module/mood.js';
-import TOAST from './module/toast.js';
-import NEW_TASK from './module/newtask.js';
-import NEW_MOOD from './module/newmood.js';
 import SETTINGS from './module/settings.js';
+import NEWTASK from './module/newtask.js';
+import NEWMOOD from './module/newmood.js';
+import HOME from './module/home.js';
+import STATUS from './module/status.js';
 
-// Init
-THEME.init();
 STATUSBAR.init('surface');
-TIME.init();
+
 PAGES.init();
 NAVBAR.init();
 TABS.init();
 TABBAR.init();
 DATEPICKER.init();
-TASK.init();
-MOOD.init();
+CONFIRM.init();
 TOAST.init();
-NEW_TASK.init();
-NEW_MOOD.init();
-SETTINGS.init();
 
-// Default
+await SETTINGS.init();
+await APPBAR.init();
+await NEWTASK.init();
+await NEWMOOD.init();
+await HOME.init();
+await STATUS.init();
+
 NAVBAR.nav('home');
 PAGES.open('home');
+
 TABS.open('task');
 TABBAR.tab('task');
 
-NAVBAR.onopen = (name)=> PAGES.open(name);
-TABBAR.onopen = (name)=> TABS.open(name);
+NAVBAR.onopen = async name => {
+    PAGES.open(name);
+
+    if (name === 'home') {
+        await HOME.refresh();
+    }
+
+    if (name === 'status') {
+        await STATUS.refresh();
+    }
+};
+
+TABBAR.onopen = name => {
+    TABS.open(name);
+};
+
+NEWTASK.onsuccess = async () => {
+    await HOME.refresh();
+    await STATUS.refresh();
+};
+
+NEWMOOD.onsuccess = async () => {
+    await HOME.refresh();
+    await STATUS.refresh();
+};
+
+SETTINGS.onchange = async () => {
+    await APPBAR.refresh();
+    await HOME.refresh();
+    await STATUS.refresh();
+};

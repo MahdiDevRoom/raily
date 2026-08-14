@@ -1,164 +1,245 @@
-import DATEPICKER from "./datepicker.js"
-import NAVBAR from "./navbar.js"
-import STATUSBAR from "./statusbar.js"
-import SWITCH from "./switch.js"
-import MOOD from "./mood.js"
-import TOAST from "./toast.js"
+import DATEPICKER from "./datepicker.js";
+import NAVBAR from "./navbar.js";
+import STATUSBAR from "./statusbar.js";
+import SWITCH from "./switch.js";
+import TOAST from "./toast.js";
 
 export default {
     async init() {
         this.elements = {
-            root: document.querySelector('#tabs [data-tab="mood"] .form'),
-            note: document.getElementById('mood-form-note'),
-            date: document.getElementById('mood-form-date'),
-            dateButton: document.querySelector('#tabs [data-tab="mood"] .flex .symbol'),
-            submit: document.querySelector('#tabs [data-tab="mood"] .submit'),
+            note: document.getElementById("mood-form-note"),
+            date: document.getElementById("mood-form-date"),
+            dateButton: document.getElementById("mood-form-date-button"),
+            submit: document.getElementById("mood-form-submit")
         };
 
-        this.moodSwitch = new SWITCH('mood-switch');
-        this.currentMoodId = null;
-        
-        this.setDefaultDate();
-        await this.checkTodayMood();
-        this.attachEvents();
+        this.mood = new SWITCH("mood-switch");
+        this.currentId = null;
+        this.target = new EventTarget();
+
+        this.store = localforage.createInstance({
+            name: "RailyDB",
+            storeName: "moods"
+        });
+
+        this._setDefaultDate();
+        await this._checkDate();
+        this._bindEvents();
 
         return this;
     },
 
-    setDefaultDate() {
-        const today = new Date();
-        const persian = new Intl.DateTimeFormat('fa-IR', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            numberingSystem: 'latn'
-        }).format(today);
-        this.elements.date.value = persian;
+    _getToday() {
+        return new Intl.DateTimeFormat("fa-IR", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            numberingSystem: "latn"
+        }).format(new Date());
     },
 
-    async checkTodayMood() {
-        const today = this.elements.date.value;
-        const todayMood = await MOOD.getByDate(today);
-        
-        if (todayMood) {
-            this.elements.note.value = todayMood.note || '';
-            this.moodSwitch.active(todayMood.mood);
-            this.currentMoodId = todayMood.id;
-            
-            this.elements.submit.disabled = false;
-            this.elements.submit.textContent = '✏️ ویرایش مود';
-            this.elements.submit.style.opacity = '1';
-            this.elements.submit.style.cursor = 'pointer';
-            
+    _setDefaultDate() {
+        this.elements.date.value = this._getToday();
+    },
+
+    async _getMoods() {
+        return (await this.store.getItem("moods")) || [];
+    },
+
+    async _saveMoods(moods) {
+        await this.store.setItem("moods", moods);
+    },
+
+    async _checkDate() {
+        const date = this.elements.date.value;
+        const moods = await this._getMoods();
+
+        const mood = moods.find(item => item.date === date);
+
+        if (mood) {
+            this.elements.note.value = mood.note || "";
+            this.mood.active(mood.mood);
+            this.currentId = mood.id;
+            this._setSubmitMode("edit");
         } else {
-            this.elements.submit.disabled = false;
-            this.elements.submit.textContent = '➕ ثبت مود';
-            this.elements.submit.style.opacity = '1';
-            this.elements.submit.style.cursor = 'pointer';
-            this.currentMoodId = null;
+            this.currentId = null;
+            this.elements.note.value = "";
+            this.mood.active("okay");
+            this._setSubmitMode("add");
         }
     },
 
-    attachEvents() {
+    _setSubmitMode(mode) {
+        this.elements.submit.textContent =
+            mode === "edit"
+                ? "ویرایش مود"
+                : "ذخیره";
+    },
+
+    _bindEvents() {
         this.elements.submit.onclick = () => this.submit();
-        
-        this.elements.dateButton.onclick = () => this.elements.date.focus();
+
+        this.elements.dateButton.onclick = () => {
+            this.elements.date.focus();
+        };
 
         this.elements.date.onfocus = () => {
-            DATEPICKER.open((date) => {
-                this.elements.date.value = date;
-                this.checkTodayMood();
+            DATEPICKER.open(date => {
+                if (typeof date === "string") {
+                    this.elements.date.value = date;
+                } else if (date?.formatted) {
+                    this.elements.date.value = date.formatted;
+                } else if (date?.jalali) {
+                    this.elements.date.value = date.jalali;
+                }
+
+                this._checkDate();
             });
         };
 
         this.elements.date.onchange = () => {
-            this.checkTodayMood();
+            this._checkDate();
         };
 
-        this.elements.note.onkeydown = (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
+        this.elements.note.addEventListener("keydown", event => {
+            if (event.key === "Enter") {
+                event.preventDefault();
                 this.submit();
             }
+        });
+    },
+
+    _getData() {
+        return {
+            mood: this.mood.getActive() || "okay",
+            note: this.elements.note.value.trim(),
+            date: this.elements.date.value
         };
     },
 
-    getMood() {
-        return this.moodSwitch.getActive() || 'okay';
-    },
+    _validate(data) {
+        this.elements.date.classList.remove("error");
 
-    validate() {
-        const date = this.elements.date.value.trim();
-
-        if (!date) {
-            this.elements.date.classList.add('error');
-            TOAST.up('تاریخ الزامی است', 'warning');
-            STATUSBAR.set('warning');
-            return false;
+        if (!data.date) {
+            this.elements.date.classList.add("error");
+            return "تاریخ الزامی است";
         }
 
-        return true;
+        return null;
+    },
+
+    _dispatchEvent(name, detail = {}) {
+        this.target.dispatchEvent(
+            new CustomEvent(name, { detail })
+        );
     },
 
     async submit() {
-        if (!this.validate()) return;
+        const data = this._getData();
+        const error = this._validate(data);
 
-        const data = {
-            mood: this.getMood(),
-            note: this.elements.note.value.trim(),
-            date: this.elements.date.value,
-        };
+        if (error) {
+            TOAST.up(error, "warning");
+            STATUSBAR.set("warning");
+            return;
+        }
 
         try {
+            const moods = await this._getMoods();
+            const now = new Date().toISOString();
+
             let result;
-            
-            if (this.currentMoodId) {
-                result = await MOOD.update(this.currentMoodId, data);
-                TOAST.up('✅ مود با موفقیت ویرایش شد', 'success');
+
+            if (this.currentId) {
+                const index = moods.findIndex(
+                    mood => mood.id === this.currentId
+                );
+
+                if (index !== -1) {
+                    moods[index] = {
+                        ...moods[index],
+                        ...data,
+                        updatedAt: now
+                    };
+
+                    result = moods[index];
+                }
             } else {
-                result = await MOOD.add(data);
-                TOAST.up('✅ مود با موفقیت ثبت شد', 'success');
+                result = {
+                    id: Date.now(),
+                    ...data,
+                    createdAt: now,
+                    updatedAt: now
+                };
+
+                moods.push(result);
             }
-            
-            STATUSBAR.set('success');
-            setTimeout(() => STATUSBAR.set('surface'), 3000);
-            NAVBAR.nav('home');
-            
-            this.currentMoodId = result.id;
-            
-            this.elements.submit.textContent = '✏️ ویرایش مود';
-            
-            if (this.onSuccess) {
-                this.onSuccess(result);
-            }
+
+            await this._saveMoods(moods);
+
+            this.currentId = result.id;
+            this._setSubmitMode("edit");
+
+            TOAST.up(
+                this.currentId ? "مود با موفقیت ذخیره شد" : "مود با موفقیت ثبت شد",
+                "success"
+            );
+
+            STATUSBAR.set("success");
+
+            setTimeout(() => {
+                STATUSBAR.set("surface");
+            }, 3000);
+
+            this._dispatchEvent("success", result);
+
+            NAVBAR.nav("home");
+
         } catch (error) {
-            console.error('خطا در ثبت مود:', error);
-            TOAST.up(error.message || '❌ خطا در ثبت مود', 'error');
+            console.error(error);
+
+            TOAST.up("خطا در ثبت مود", "error");
+            STATUSBAR.set("error");
+
+            this._dispatchEvent("error", error);
         }
     },
 
     reset() {
-        this.elements.note.value = '';
-        this.setDefaultDate();
+        this.elements.note.value = "";
+        this.elements.date.classList.remove("error");
+
+        this._setDefaultDate();
+
+        this.mood.active("okay");
+        this.currentId = null;
+
+        this._setSubmitMode("add");
         this.elements.note.focus();
-        this.elements.date.classList.remove('error');
-        this.moodSwitch.active('okay');
-        this.currentMoodId = null;
-        
-        this.elements.submit.disabled = false;
-        this.elements.submit.textContent = '➕ ثبت مود';
-        this.elements.submit.style.opacity = '1';
-        this.elements.submit.style.cursor = 'pointer';
     },
 
     fill(data) {
-        this.elements.note.value = data.note || '';
-        this.elements.date.value = data.date || '';
+        if (!data) return;
+
+        this.elements.note.value = data.note || "";
+        this.elements.date.value = data.date || this._getToday();
 
         if (data.mood) {
-            this.moodSwitch.active(data.mood);
+            this.mood.active(data.mood);
         }
     },
 
-    onSuccess: null
+    set onsuccess(callback) {
+        this.target.addEventListener(
+            "success",
+            event => callback(event.detail)
+        );
+    },
+
+    set onerror(callback) {
+        this.target.addEventListener(
+            "error",
+            event => callback(event.detail)
+        );
+    }
 };

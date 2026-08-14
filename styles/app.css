@@ -15,6 +15,9 @@
 @import url('ui/hr.css');
 @import url('ui/datepicker.css');
 @import url('ui/toast.css');
+@import url('ui/confirm.css');
+@import url('ui/task-box.css');
+@import url('ui/status.css');
 
 /* Themes */
 [data-theme="auto"] {
@@ -35,7 +38,7 @@
     box-sizing: border-box;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
-    
+
     &::-webkit-scrollbar {
         display: none;
     }

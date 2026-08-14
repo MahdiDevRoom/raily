@@ -1,47 +1,76 @@
-import THEME from './theme.js'
-
 export default {
-    init(color) {
-        this.meta = document.querySelector('meta[name="theme-color"]');
+    async init(color = 'surface') {
+        this.meta = document.querySelector(
+            'meta[name="theme-color"]'
+        );
+
         this.color = color;
-        this.set(this.color);
-        THEME.onChange(() => this.reload());
+        this.theme = 'auto';
+
+        await this.load();
+
+        return this;
     },
 
-    set(variable) {
-        this.color = variable;
-        const computedStyle = getComputedStyle(document.documentElement);
-        let colorValue = computedStyle.getPropertyValue(`--${variable}`).trim();
+    async load() {
+        const db = localforage.createInstance({
+            name: 'RailyDB',
+            storeName: 'settings'
+        });
 
-        if (colorValue.includes('light-dark')) {
-            colorValue = this.resolveLightDark(colorValue);
-        }
+        const settings =
+            await db.getItem('settings') || {};
+
+        this.theme = settings.theme || 'auto';
+
+        await this.set(this.color);
+    },
+
+    async set(variable) {
+        this.color = variable;
+
+        let value = getComputedStyle(
+            document.documentElement
+        )
+            .getPropertyValue(`--${variable}`)
+            .trim();
+
+        value = this.resolveLightDark(value);
 
         if (this.meta) {
-            this.meta.setAttribute('content', colorValue);
+            this.meta.setAttribute('content', value);
         }
+
+        return value;
     },
 
     resolveLightDark(value) {
-        const match = value.match(/light-dark\(([^,]+),\s*([^)]+)\)/);
+        const match = value.match(
+            /light-dark\(([^,]+),\s*([^)]+)\)/
+        );
+
         if (!match) return value;
 
-        const lightColor = match[1].trim();
-        const darkColor = match[2].trim();
+        const light = match[1].trim();
+        const dark = match[2].trim();
 
-        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const isLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-
-        if (THEME.theme === 'dark' || (THEME.theme === 'auto' && isDark)) {
-            return darkColor;
-        } else if (THEME.theme === 'light' || (THEME.theme === 'auto' && isLight)) {
-            return lightColor;
+        if (this.theme === 'dark') {
+            return dark;
         }
 
-        return lightColor;
+        if (this.theme === 'light') {
+            return light;
+        }
+
+        return window.matchMedia(
+            '(prefers-color-scheme: dark)'
+        ).matches
+            ? dark
+            : light;
     },
 
-    reload() {
-        this.set(this.color);
+    async reload() {
+        await this.load();
+        return this;
     }
-}
+};

@@ -1,0 +1,81 @@
+[data-page="status"] {
+
+    .status {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .status-card {
+        background: var(--surface-container);
+        color: var(--on-surface-container);
+        border-radius: 20px;
+        padding: 16px;
+        min-height: 100px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 8px;
+
+        .label {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        .value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .description {
+            font-size: 12px;
+            opacity: 0.6;
+        }
+
+        &.primary {
+            background: var(--primary-container);
+            color: var(--on-primary-container);
+        }
+
+        &.success {
+            background: var(--success);
+            color: var(--on-success);
+        }
+
+        &.warning {
+            background: var(--warning);
+            color: var(--on-warning);
+        }
+
+        &.error {
+            background: var(--error);
+            color: var(--on-error);
+        }
+    }
+
+    .status-section {
+        margin-bottom: 24px;
+
+        .title {
+            margin-bottom: 12px;
+        }
+    }
+
+    .status-wide {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (min-width: 480px) {
+    [data-page="status"] {
+
+        .status {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .status-wide {
+            grid-column: span 2;
+        }
+    }
+}

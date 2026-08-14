@@ -29,7 +29,7 @@
             background: var(--primary-container);
             color: var(--on-primary-container);
         }
-        
+
         &.success {
             background: var(--success);
             color: var(--on-success);
@@ -43,6 +43,16 @@
         &.error {
             background: var(--error);
             color: var(--on-error);
+        }
+    }
+}
+
+@media (min-width: 687px) {
+    #toast {
+        &>* {
+            position: absolute;
+            bottom: 24px;
+            left: 24px;
         }
     }
 }
