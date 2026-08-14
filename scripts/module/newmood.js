@@ -1,6 +1,5 @@
 import DATEPICKER from "./datepicker.js";
 import NAVBAR from "./navbar.js";
-import STATUSBAR from "./statusbar.js";
 import SWITCH from "./switch.js";
 import TOAST from "./toast.js";
 
@@ -156,7 +155,6 @@ export default {
         if (error) {
             TOAST.up(error, "warning");
 
-            STATUSBAR.set("warning");
 
             return;
         }
@@ -250,12 +248,6 @@ export default {
                 "success"
             );
 
-            STATUSBAR.set("success");
-
-            setTimeout(() => {
-                STATUSBAR.set("surface");
-            }, 3000);
-
             this._dispatchEvent("success", result);
 
             /*
@@ -271,7 +263,6 @@ export default {
                 "error"
             );
 
-            STATUSBAR.set("error");
 
             this._dispatchEvent(
                 "error",

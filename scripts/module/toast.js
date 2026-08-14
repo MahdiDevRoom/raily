@@ -1,46 +1,79 @@
-import STATUSBAR from "./statusbar.js"
-
 export default {
     init() {
-        this.root = document.getElementById('toast');
-        this.timeout = null;
+        this.root =
+            document.getElementById("toast");
+
+        this.timer = null;
+
         return this;
     },
 
-    up(input = 'Hey', type = 'info') {
-        if (this.timeout) {
-            clearTimeout(this.timeout);
-            this.timeout = null;
+    up(message, type = "info") {
+        if (!this.root) {
+            this.root =
+                document.getElementById("toast");
         }
 
-        this.root.innerHTML = '';
+        if (!this.root) return;
 
-        const data = {
-            info: ['info', 'primary-container'],
-            success: ['check_circle', 'success'],
-            warning: ['warning', 'warning'],
-            error: ['error', 'error'],
+        clearTimeout(this.timer);
+
+        const icons = {
+            info: "info",
+            success: "check_circle",
+            warning: "warning",
+            error: "error"
         };
 
-        this.root.innerHTML = `<div class="${type}"> 
-            <span class="symbol"> ${data[type][0]} </span>
-            <span class="content"> ${input} </span>
-        </div>`;
+        const types = [
+            "info",
+            "success",
+            "warning",
+            "error"
+        ];
 
-        STATUSBAR.resolveLightDark(data[type][1])
+        if (!types.includes(type)) {
+            type = "info";
+        }
 
-        this.timeout = setTimeout(() => {
-            this.root.innerHTML = '';
-            STATUSBAR.resolveLightDark('surface')
-            this.timeout = null;
+        this.root.innerHTML = "";
+
+        const toast =
+            document.createElement("div");
+
+        toast.className = type;
+
+        toast.innerHTML = `
+            <span class="symbol">
+                ${icons[type]}
+            </span>
+
+            <div class="content">
+                ${this._escape(message)}
+            </div>
+        `;
+
+        this.root.appendChild(toast);
+
+        this.timer = setTimeout(() => {
+            toast.remove();
         }, 3000);
     },
 
-    clear() {
-        if (this.timeout) {
-            clearTimeout(this.timeout);
-            this.timeout = null;
-        }
-        this.root.innerHTML = '';
+    hide() {
+        clearTimeout(this.timer);
+
+        if (!this.root) return;
+
+        this.root.innerHTML = "";
+    },
+
+    _escape(value) {
+        return String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
     }
 };

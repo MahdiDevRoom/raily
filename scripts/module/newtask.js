@@ -1,6 +1,5 @@
 import DATEPICKER from "./datepicker.js";
 import NAVBAR from "./navbar.js";
-import STATUSBAR from "./statusbar.js";
 import SWITCH from "./switch.js";
 import TOAST from "./toast.js";
 
@@ -112,7 +111,6 @@ export default {
 
         if (error) {
             TOAST.up(error, "warning");
-            STATUSBAR.set("warning");
             return;
         }
 
@@ -133,11 +131,6 @@ export default {
             await this._saveTasks(tasks);
 
             TOAST.up("فعالیت با موفقیت ثبت شد", "success");
-            STATUSBAR.set("success");
-
-            setTimeout(() => {
-                STATUSBAR.set("surface");
-            }, 3000);
 
             this.reset();
 
@@ -147,7 +140,6 @@ export default {
         } catch (error) {
             console.error(error);
             TOAST.up("خطا در ثبت فعالیت", "error");
-            STATUSBAR.set("error");
             this._dispatchEvent("error", error);
         }
     },
