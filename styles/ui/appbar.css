@@ -24,14 +24,17 @@
         .text {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 4px;
 
             .title {
+                font-size: 24px;
+                font-weight: 900;
                 padding-inline-start: 16px;
             }
 
             .sub-title{
                 opacity: 0.8;
+                font-size: 14px;
             }
         }
 
@@ -43,10 +46,6 @@
             flex-direction: column;
             justify-content: center;
             align-items: end;
-
-            #raily-calendar {
-                font-weight: 700;
-            }
 
             #clock {
                 font-size: 24px;
@@ -61,11 +60,6 @@
             #calendar {
                 font-weight: 400;
             }
-        }
-
-        .title {
-            font-size: 32px;
-            font-weight: 900;
         }
     }
 }
