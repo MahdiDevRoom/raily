@@ -1,0 +1,203 @@
+[data-page="home"] {
+    .mood {
+        background: var(--scondary-container);
+        color: var(--on-scondary-container);
+        border-radius: 64px;
+
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+
+        padding: 16px;
+
+        .mood-title {
+            font-weight: 900;
+            font-size: 20px;
+            color: var(--scondary);
+        }
+
+        .mood-value {
+            font-weight: 700;
+            font-size: 20px;
+            border-radius: 24px;
+            padding: 8px 16px;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        &>div {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        button {
+            color: currentColor;
+            border: 1px solid currentColor;
+            background: transparent;
+            border-radius: 24px;
+            padding: 8px 16px;
+        }
+    }
+
+    .filter {
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+        align-items: stretch;
+        padding: 24px 8px;
+        gap: 8px;
+
+        .row {
+            border-radius: 4px;
+    
+            &:first-child {
+                border-radius: 16px 16px 4px 4px;
+            }
+    
+            &:last-child {
+                border-radius: 4px 4px 16px 16px;
+            }
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+
+            .switch {
+                flex: 1;
+
+
+                padding: 0;
+                justify-content: space-between;
+                gap: 0;
+                overflow: auto hidden;
+
+                
+                &>* {
+                    padding: 2px 8px;
+                }
+
+            }
+        }
+    }
+
+    .tasks {
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+        align-items: stretch;
+        gap: 2px;
+
+        .empty {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 48px 24px;
+            font-size: 18px;
+        }
+
+        .task {
+            background: var(--surface-container-low);
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            border-radius: 16px;
+
+            &.priority-high .title::before {
+                background: var(--error) !important;
+            }
+
+            &.priority-medium .title::before {
+                background: var(--warning) !important;
+            }
+
+            &.priority-low .title::before {
+                background: var(--success) !important;
+            }
+
+            &.priority-none .title::before {
+                background: var(--outline) !important;
+            }
+
+            .content {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                align-items: start;
+                gap: 4px;
+                padding: 8px;
+
+                .title {
+                    order: 1;
+                    all: unset;
+                    font-size: 20px;
+                    font-weight: 700;
+                    padding-inline: 16px;
+                    margin: 0 !important;
+                }
+
+                .note {
+                    order: 3;
+                    background: var(--background);
+                    color: var(--on-background);
+                    flex: 1;
+                    width: 100%;
+                    border-radius: 16px;
+                    padding: 8px;
+                }
+
+                .meta {
+                    font-size: 14px;
+                    font-weight: 400;
+                    order: 2;
+                    display: flex;
+                    justify-content: start;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 4px;
+
+                    &>* {
+                        background: var(--surface-container);
+                        color: var(--on-surface-container);
+                        padding: 4px 18px;
+                        border-radius: 16px;
+                    }
+
+                }
+            }
+
+            .actions {
+                display: flex;
+                flex-direction: column;
+                justify-content: start;
+                align-items: stretch;
+                border-right: 2px solid var(--background);
+
+                button {
+                    background: transparent;
+                    color: currentColor;
+                    padding: 8px 4px;
+                    border-radius: 0;
+                    flex: 1;
+
+                    &.check {
+                        border-bottom: 2px solid var(--background);
+                    }
+                }
+            }
+
+            &.completed {
+                opacity: 0.3;
+
+                button.check {
+                    color: var(--success);
+                }
+            }
+        }
+
+    }
+}

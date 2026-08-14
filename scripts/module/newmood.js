@@ -14,7 +14,9 @@ export default {
         };
 
         this.mood = new SWITCH("mood-switch");
+
         this.currentId = null;
+
         this.target = new EventTarget();
 
         this.store = localforage.createInstance({
@@ -23,7 +25,9 @@ export default {
         });
 
         this._setDefaultDate();
+
         await this._checkDate();
+
         this._bindEvents();
 
         return this;
@@ -58,13 +62,19 @@ export default {
 
         if (mood) {
             this.elements.note.value = mood.note || "";
-            this.mood.active(mood.mood);
+
+            this.mood.active(mood.mood || "okay");
+
             this.currentId = mood.id;
+
             this._setSubmitMode("edit");
         } else {
             this.currentId = null;
+
             this.elements.note.value = "";
+
             this.mood.active("okay");
+
             this._setSubmitMode("add");
         }
     },
@@ -77,7 +87,9 @@ export default {
     },
 
     _bindEvents() {
-        this.elements.submit.onclick = () => this.submit();
+        this.elements.submit.onclick = () => {
+            this.submit();
+        };
 
         this.elements.dateButton.onclick = () => {
             this.elements.date.focus();
@@ -104,6 +116,7 @@ export default {
         this.elements.note.addEventListener("keydown", event => {
             if (event.key === "Enter") {
                 event.preventDefault();
+
                 this.submit();
             }
         });
@@ -122,6 +135,7 @@ export default {
 
         if (!data.date) {
             this.elements.date.classList.add("error");
+
             return "تاریخ الزامی است";
         }
 
@@ -136,35 +150,72 @@ export default {
 
     async submit() {
         const data = this._getData();
+
         const error = this._validate(data);
 
         if (error) {
             TOAST.up(error, "warning");
+
             STATUSBAR.set("warning");
+
             return;
         }
 
         try {
             const moods = await this._getMoods();
+
             const now = new Date().toISOString();
 
-            let result;
+            const editingId = this.currentId;
 
-            if (this.currentId) {
+            let result;
+            let mode;
+
+            /*
+             * ویرایش مود موجود
+             */
+            if (editingId !== null && editingId !== undefined) {
                 const index = moods.findIndex(
-                    mood => mood.id === this.currentId
+                    mood => mood.id === editingId
                 );
 
+                /*
+                 * اگر رکورد پیدا شد، ویرایشش می‌کنیم
+                 */
                 if (index !== -1) {
-                    moods[index] = {
+                    result = {
                         ...moods[index],
                         ...data,
                         updatedAt: now
                     };
 
-                    result = moods[index];
+                    moods[index] = result;
+
+                    mode = "edit";
                 }
-            } else {
+
+                /*
+                 * اگر currentId وجود داشت ولی رکورد پیدا نشد،
+                 * به جای crash کردن، یک مود جدید می‌سازیم.
+                 */
+                else {
+                    result = {
+                        id: Date.now(),
+                        ...data,
+                        createdAt: now,
+                        updatedAt: now
+                    };
+
+                    moods.push(result);
+
+                    mode = "add";
+                }
+            }
+
+            /*
+             * ثبت مود جدید
+             */
+            else {
                 result = {
                     id: Date.now(),
                     ...data,
@@ -173,15 +224,29 @@ export default {
                 };
 
                 moods.push(result);
+
+                mode = "add";
             }
 
             await this._saveMoods(moods);
 
+            /*
+             * ID رکورد ذخیره‌شده
+             */
             this.currentId = result.id;
+
+            /*
+             * دکمه بعد از ذخیره تبدیل به ویرایش شود
+             */
             this._setSubmitMode("edit");
 
+            /*
+             * پیام مناسب
+             */
             TOAST.up(
-                this.currentId ? "مود با موفقیت ذخیره شد" : "مود با موفقیت ثبت شد",
+                mode === "edit"
+                    ? "مود با موفقیت ویرایش شد"
+                    : "مود با موفقیت ثبت شد",
                 "success"
             );
 
@@ -193,28 +258,41 @@ export default {
 
             this._dispatchEvent("success", result);
 
+            /*
+             * برگشت به خانه
+             */
             NAVBAR.nav("home");
 
         } catch (error) {
             console.error(error);
 
-            TOAST.up("خطا در ثبت مود", "error");
+            TOAST.up(
+                "خطا در ثبت مود",
+                "error"
+            );
+
             STATUSBAR.set("error");
 
-            this._dispatchEvent("error", error);
+            this._dispatchEvent(
+                "error",
+                error
+            );
         }
     },
 
     reset() {
         this.elements.note.value = "";
+
         this.elements.date.classList.remove("error");
 
         this._setDefaultDate();
 
         this.mood.active("okay");
+
         this.currentId = null;
 
         this._setSubmitMode("add");
+
         this.elements.note.focus();
     },
 
@@ -222,10 +300,18 @@ export default {
         if (!data) return;
 
         this.elements.note.value = data.note || "";
-        this.elements.date.value = data.date || this._getToday();
+
+        this.elements.date.value =
+            data.date || this._getToday();
 
         if (data.mood) {
             this.mood.active(data.mood);
+        }
+
+        if (data.id !== undefined) {
+            this.currentId = data.id;
+
+            this._setSubmitMode("edit");
         }
     },
 

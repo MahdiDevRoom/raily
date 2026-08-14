@@ -13,8 +13,8 @@
     --on-scondary-dark: hsl(260 100% 10%);
     --scondary-container-light: hsl(25 100% 80%);
     --scondary-container-dark: hsl(25 100% 25%);
-    --on-scondary-container-light: hsl(260 100% 20%);
-    --on-scondary-container-dark: hsl(260 100% 100%);
+    --on-scondary-container-light: hsl(25 100% 20%);
+    --on-scondary-container-dark: hsl(25 100% 100%);
     --success-dark: hsl(150 100% 70%);
     --success-light: hsl(150 100% 40%);
     --on-success-dark: hsl(150 100% 10%);

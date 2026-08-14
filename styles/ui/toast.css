@@ -47,7 +47,7 @@
     }
 }
 
-@media (min-width: 687px) {
+@media (min-width:887px) {
     #toast {
         &>* {
             position: absolute;
