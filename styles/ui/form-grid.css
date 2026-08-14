@@ -30,7 +30,7 @@
         }
     }
 
-    button:not(.submit) {
+    :not(.dangerzone) button:not(.submit) {
         border: none;
         background: var(--surface-container);
         color: var(--on-surface-container);
@@ -65,6 +65,12 @@
                 background: var(--primary-container);
                 border: 1px solid var(--primary-container);
             }
+        }
+    }
+
+    .dangerzone {
+        &>* {
+            margin: 4px;
         }
     }
 }
