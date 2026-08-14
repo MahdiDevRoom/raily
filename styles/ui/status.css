@@ -1,95 +1,58 @@
 [data-page="status"] {
-
-    .status-grid {
+    
+    /* ===== Progress Cards ===== */
+    .progress-grid {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(2, 1fr);
         gap: 8px;
+        margin-bottom: 16px;
     }
-
-    .status-card {
-        min-width: 0;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        gap: 12px;
-
+    
+    .progress-card {
         background: var(--surface-container-low);
         color: var(--on-surface-container-low);
-
         padding: 16px;
         border-radius: 16px;
-
-        .title {
-            all: unset !important;
-
-            display: block;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        
+        .progress-title {
             font-size: 14px;
             font-weight: 500;
             opacity: 0.75;
         }
-
-        .value {
-            font-size: 20px;
+        
+        .progress-number {
+            font-size: 16px;
             font-weight: 700;
-            line-height: 1.2;
         }
-    }
-
-    .status-list-card {
-        grid-column: span 2;
-
-        .list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-
-            & > div {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                gap: 8px;
-
-                padding: 8px 12px;
-
-                background: var(--surface);
-                border-radius: 12px;
-
-                span {
-                    font-size: 14px;
-                }
-
-                strong {
-                    font-size: 15px;
-                    font-weight: 700;
-                }
-            }
-
-            & > span {
-                opacity: 0.6;
-                font-size: 14px;
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--surface);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 4px;
+            
+            .progress-fill {
+                height: 100%;
+                background: linear-gradient(90deg, var(--primary), var(--secondary));
+                border-radius: 4px;
+                transition: width 0.6s ease;
             }
         }
-    }
-}
-
-
-@media (min-width: 480px) {
-
-    [data-page="status"] {
-
-        .status-grid {
-            grid-template-columns:
-                repeat(3, minmax(0, 1fr));
-        }
-
-        .status-list-card {
-            grid-column: span 3;
+        
+        .progress-percent {
+            font-size: 13px;
+            font-weight: 600;
+            opacity: 0.7;
+            text-align: left;
         }
     }
-}
-
-[data-page="status"] {
     
+    /* ===== Charts ===== */
     .status-charts {
         display: grid;
         grid-template-columns: 1fr;
@@ -99,39 +62,116 @@
     
     .chart-card {
         min-width: 0;
-        
         background: var(--surface-container-low);
         color: var(--on-surface-container-low);
-        
         padding: 16px;
         border-radius: 16px;
         
-        .title {
+        .chart-title {
             all: unset !important;
-            
             display: block;
             margin-bottom: 12px;
-            
             font-size: 14px;
             font-weight: 500;
             opacity: 0.75;
         }
         
-        .chart {
+        .chart-box {
             position: relative;
             width: 100%;
             height: 240px;
         }
     }
+    
+    /* ===== Status Grid ===== */
+    .status-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+    
+    .status-card {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 12px;
+        background: var(--surface-container-low);
+        color: var(--on-surface-container-low);
+        padding: 16px;
+        border-radius: 16px;
+        
+        .title {
+            all: unset !important;
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0.75;
+        }
+        
+        .value {
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+    }
+    
+    .status-list-card {
+        grid-column: span 2;
+        
+        .list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            
+            &>div {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 12px;
+                background: var(--surface);
+                border-radius: 12px;
+                
+                span {
+                    font-size: 14px;
+                }
+                
+                strong {
+                    font-size: 15px;
+                    font-weight: 700;
+                }
+            }
+            
+            &>span {
+                opacity: 0.6;
+                font-size: 14px;
+            }
+        }
+    }
 }
 
-
+/* ================================================================
+   RESPONSIVE
+   ================================================================ */
 @media (min-width: 480px) {
     
     [data-page="status"] {
         
+        .progress-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        
         .status-charts {
             grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        
+        .status-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        
+        .status-list-card {
+            grid-column: span 3;
         }
     }
 }
