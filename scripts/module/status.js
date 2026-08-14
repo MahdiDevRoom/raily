@@ -176,7 +176,7 @@ export default {
         this._destroyCharts();
 
         this.fg.innerHTML = `
-            <div class="title">وضعیت</div>
+            <div class="title-tag">وضعیت</div>
 
             <!-- ===== پیشرفت زمانی ===== -->
             <div class="progress-grid">
