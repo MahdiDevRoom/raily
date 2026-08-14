@@ -1,5 +1,5 @@
 * {
-    --primary-light: hsl(200 100% 30%);
+    --primary-light: hsl(200 100% 40%);
     --primary-dark: hsl(200 100% 70%);
     --on-primary-light: hsl(200 100% 100%);
     --on-primary-dark: hsl(200 100% 10%);
@@ -7,24 +7,24 @@
     --primary-container-dark: hsl(200 100% 25%);
     --on-primary-container-light: hsl(200 100% 20%);
     --on-primary-container-dark: hsl(200 100% 100%);
-    --scondary-light: hsl(230 100% 30%);
-    --scondary-dark: hsl(230 100% 70%);
+    --scondary-light: hsl(25 100% 40%);
+    --scondary-dark: hsl(25 100% 70%);
     --on-scondary-light: hsl(260 100% 100%);
     --on-scondary-dark: hsl(260 100% 10%);
-    --scondary-container-light: hsl(230 100% 80%);
-    --scondary-container-dark: hsl(230 100% 25%);
+    --scondary-container-light: hsl(25 100% 80%);
+    --scondary-container-dark: hsl(25 100% 25%);
     --on-scondary-container-light: hsl(260 100% 20%);
     --on-scondary-container-dark: hsl(260 100% 100%);
     --success-dark: hsl(150 100% 70%);
-    --success-light: hsl(150 100% 30%);
+    --success-light: hsl(150 100% 40%);
     --on-success-dark: hsl(150 100% 10%);
     --on-success-light: hsl(150 100% 100%);
     --warning-dark: hsl(45 100% 70%);
-    --warning-light: hsl(45 100% 30%);
+    --warning-light: hsl(45 100% 40%);
     --on-warning-dark: hsl(45 100% 10%);
     --on-warning-light: hsl(45 100% 100%);
     --error-dark: hsl(0 100% 70%);
-    --error-light: hsl(0 100% 30%);
+    --error-light: hsl(0 100% 40%);
     --on-error-dark: hsl(0 100% 10%);
     --on-error-light: hsl(0 100% 100%);
     --background-dark: hsl(200 20% 7%);
@@ -47,8 +47,8 @@
     --surface-container-high-dark: hsl(200 20% 18%);
     --on-surface-container-high-light: hsl(200 40% 15%);
     --on-surface-container-high-dark: hsl(200 20% 95%);
-    --surface-variant-light: hsl(200 40% 85%);
-    --surface-variant-dark: hsl(200 20% 18%);
+    --surface-variant-light: hsl(200 40% 83%);
+    --surface-variant-dark: hsl(200 20% 21%);
     --on-surface-variant-light: hsl(200 40% 15%);
     --on-surface-variant-dark: hsl(200 20% 95%);
     --outline-light: hsl(200 40% 75%);
@@ -61,7 +61,7 @@
     --primary-container: light-dark(var(--primary-container-light), var(--primary-container-dark));
     --on-primary-container: light-dark(var(--on-primary-container-light), var(--on-primary-container-dark));
     --scondary: light-dark(var(--scondary-light), var(--scondary-dark));
-    --on-scondary: light-dark(var(--on-scondary--light), var(--on-scondary-dark));
+    --on-scondary: light-dark(var(--on-scondary-light), var(--on-scondary-dark));
     --scondary-container: light-dark(var(--scondary-container-light), var(--scondary-container-dark));
     --on-scondary-container: light-dark(var(--on-scondary-container-light), var(--on-scondary-container-dark));
     --success: light-dark(var(--success-light), var(--success-dark));

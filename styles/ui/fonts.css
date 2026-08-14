@@ -1,0 +1,12 @@
+@font-face {
+    font-family: 'Google Sans Flex';
+    src: url('../fonts/GoogleSansFlex-Variable.ttf');
+}
+@font-face {
+    font-family: 'Vazirmatn';
+    src: url('../fonts/Vazirmatn-Variable.ttf');
+}
+@font-face {
+    font-family: 'Material Symbols';
+    src: url('../fonts/MaterialSymbolsRounded.woff2') format('woff2');
+}

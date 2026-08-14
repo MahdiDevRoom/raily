@@ -1,0 +1,20 @@
+.symbol {
+    font-family: 'Material Symbols';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    vertical-align: middle;
+    -webkit-font-smoothing: antialiased;
+    
+    font-variation-settings:
+        'FILL' var(--FILL, 0),
+        'wght' var(--wght, 300),
+        'GRAD' var(--GRAD, 0),
+        'opsz' var(--opsz, 24);
+}

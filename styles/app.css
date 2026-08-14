@@ -1,0 +1,52 @@
+/* ui */
+@import url('ui/fonts.css');
+@import url('ui/colors.css');
+@import url('ui/symbol.css');
+@import url('ui/appbar.css');
+@import url('ui/switch.css');
+@import url('ui/navbar.css');
+@import url('ui/pages.css');
+@import url('ui/tabs.css');
+@import url('ui/tabbar.css');
+@import url('ui/input.css');
+@import url('ui/textarea.css');
+@import url('ui/form-grid.css');
+@import url('ui/button.css');
+@import url('ui/hr.css');
+@import url('ui/datepicker.css');
+@import url('ui/toast.css');
+
+/* Themes */
+[data-theme="auto"] {
+    color-scheme: light dark
+}
+
+[data-theme="light"] {
+    color-scheme: light
+}
+
+[data-theme="dark"] {
+    color-scheme: dark
+}
+
+/* Defaults */
+* {
+    font-family: 'Google Sans Flex', 'Vazirmatn', sans-serif;
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+
+    background: var(--surface);
+    color: var(--on-surface);
+}

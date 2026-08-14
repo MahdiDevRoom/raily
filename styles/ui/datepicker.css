@@ -1,0 +1,227 @@
+#datepicker {
+    direction: rtl;
+
+    .fg {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        translate: -50% -50%;
+        z-index: 30;
+        width: 300px;
+        max-width: 90%;
+        height: 450px;
+        max-height: 90%;
+        background: var(--surface);
+        border-radius: 32px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: stretch;
+
+
+        scale: 0.5;
+        touch-action: none;
+        pointer-events: none;
+        opacity: 0;
+
+        .header {
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+            padding: 8px;
+            gap: 8px;
+
+            &>* {
+                border-radius: 24px;
+                padding: 8px;
+
+                cursor: pointer;
+
+                &.day,
+                &.month,
+                &.year {
+                    flex-grow: 1;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    border-radius: 12px;
+                }
+
+                &:hover {
+                    background: var(--surface-container);
+                }
+
+                &:active {
+                    scale: 0.9;
+                }
+
+                &.active {
+                    background: var(--primary);
+                    color: var(--on-primary);
+                }
+            }
+        }
+
+        .body {
+            &>* {
+                display: none;
+
+                .weekday,
+                .days,
+                .months,
+                .years {
+                    width: 100%;
+                    display: grid;
+                    gap: 4px;
+                    padding: 8px;
+                    text-align: center;
+                }
+
+                .weekday {
+                    grid-template-columns: repeat(7, 1fr);
+                    background: var(--background);
+                    border-radius: 16px;
+                    font-weight: 700;
+                }
+
+                .days {
+                    grid-template-columns: repeat(7, 1fr);
+
+                    &>* {
+                        aspect-ratio: 1;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        border-radius: 8px;
+                        padding: 4px;
+
+                        &:not(.empty) {
+                            cursor: pointer;
+                        }
+
+                        &:not(.empty):hover {
+                            background: var(--surface-container);
+                        }
+
+                        &:not(.empty).current {
+                            font-weight: 700;
+                            background: var(--primary-container);
+                            color: var(--on-primary-container);
+                        }
+                    }
+                }
+
+                .months {
+                    grid-template-columns: repeat(3, 1fr);
+
+                    &>* {
+                        background: var(--background);
+                        padding: 8px;
+                        border-radius: 8px;
+                        cursor: pointer;
+
+                        &:hover {
+                            background: var(--surface-container);
+                        }
+
+                        &.current {
+                            background: var(--primary-container);
+                            color: var(--on-primary-container);
+                        }
+                    }
+                }
+
+                .years {
+                    grid-template-columns: repeat(3, 1fr);
+
+                    &>* {
+                        background: var(--background);
+                        padding: 8px;
+                        border-radius: 8px;
+                        cursor: pointer;
+
+                        &:hover {
+                            background: var(--surface-container);
+                        }
+
+                        &.current {
+                            background: var(--primary-container);
+                            color: var(--on-primary-container);
+                        }
+                    }
+                }
+
+                &.active {
+                    display: block;
+                    padding: 8px;
+                    opacity: 1;
+                    scale: 1;
+                }
+            }
+
+        }
+
+        .footer {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            gap: 8px;
+            border-top: 2px solid var(--surface-variant);
+
+            &>* {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: nowrap;
+                justify-content: space-between;
+                align-items: center;
+                gap: 8px;
+
+                button {
+                    background: var(--surface-container);
+                    color: var(--on-surface-container);
+                    border-radius: 24px;
+
+                    &.submit {
+                        background: var(--primary-container);
+                        color: var(--on-primary-container);
+                    }
+                }
+            }
+
+        }
+    }
+
+    .bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+        pointer-events: none;
+        background: var(--glass);
+        backdrop-filter: blur(24px);
+        opacity: 0;
+        z-index: 20;
+    }
+
+    &.active {
+
+        .fg {
+            opacity: 1;
+            scale: 1;
+            touch-action: auto;
+            pointer-events: all;
+        }
+
+        .bg {
+            opacity: 1;
+            touch-action: auto;
+            pointer-events: all;
+        }
+    }
+}

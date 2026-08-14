@@ -1,0 +1,22 @@
+input[type="text"] {
+    width: 100%;
+    max-width: none;
+    border: none;
+    outline: none;
+    padding: 8px;
+    background: var(--surface);
+    color: var(--on-surface);
+    border: 1px solid var(--outline);
+    font-size: 16px;
+    border-radius: 16px;
+    box-sizing: border-box;
+
+    &:focus {
+        background: var(--surface-container);
+    }
+
+    &.error {
+        border-color: var(--error);
+        color: var(--error);
+    }
+}

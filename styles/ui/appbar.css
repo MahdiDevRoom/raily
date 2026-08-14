@@ -1,0 +1,71 @@
+#appbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+
+    .fg {
+        background: var(--primary);
+        color: var(--on-primary);
+        max-width: 450px;
+        width: 110%;
+        display: flex;
+        justify-content: space-between;
+        align-items: stretch;
+        padding: 16px;
+        box-shadow: 0 5px 15px var(--glass);
+        border-radius: 32px;
+
+        .text {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+
+            .title {
+                padding-inline-start: 16px;
+            }
+
+            .sub-title{
+                opacity: 0.8;
+            }
+        }
+
+        .time{
+            padding: 8px;
+            border-radius: 24px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: end;
+
+            #raily-calendar {
+                font-weight: 700;
+            }
+
+            #clock {
+                font-size: 24px;
+                font-weight: 900;
+                .colon {
+                    opacity: 0.5;
+                    padding: 8px;
+                    font-weight: 700;
+                }
+            }
+
+            #calendar {
+                font-weight: 400;
+            }
+        }
+
+        .title {
+            font-size: 32px;
+            font-weight: 900;
+        }
+    }
+}

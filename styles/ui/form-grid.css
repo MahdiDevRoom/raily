@@ -1,0 +1,71 @@
+.form-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px;
+
+    label {
+        align-self: center;
+    }
+
+    .flex {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 4px;
+
+        &>* {
+            border-radius: 16px;
+
+            &:first-child {
+                border-radius: 4px 16px 16px 4px;
+            }
+
+            &:last-child {
+                border-radius: 16px 4px 4px 16px;
+            }
+        }
+
+        .grow {
+            flex-grow: 1;
+        }
+    }
+
+    button:not(.submit) {
+        border: none;
+        background: var(--surface-container);
+        color: var(--on-surface-container);
+        height: 100%;
+        padding: 0 8px;
+        border-radius: 16px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .submit {
+        background: var(--primary);
+        color: var(--on-primary);
+        margin: 0;
+        gap: 16px;
+    }
+
+    .row {
+        grid-column: span 2;
+    }
+
+    .switch {
+        border: none;
+        flex-wrap: wrap;
+        justify-content: start;
+
+        [data-case] {
+            background: var(--surface);
+            border: 1px solid var(--outline);
+
+            &.active {
+                background: var(--primary-container);
+                border: 1px solid var(--primary-container);
+            }
+        }
+    }
+}
