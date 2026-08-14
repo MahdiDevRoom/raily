@@ -1,24 +1,34 @@
 export default {
+
     async init() {
-        this.root = document.querySelector('[data-page="status"]');
-        this.fg = this.root.querySelector('.fg');
+        this.root =
+            document.querySelector('[data-page="status"]');
 
-        this.settingsStore = localforage.createInstance({
-            name: 'RailyDB',
-            storeName: 'settings'
-        });
+        this.fg =
+            this.root.querySelector('.fg');
 
-        this.tasksStore = localforage.createInstance({
-            name: 'RailyDB',
-            storeName: 'tasks'
-        });
+        this.settingsStore =
+            localforage.createInstance({
+                name: 'RailyDB',
+                storeName: 'settings'
+            });
 
-        this.moodsStore = localforage.createInstance({
-            name: 'RailyDB',
-            storeName: 'moods'
-        });
+        this.tasksStore =
+            localforage.createInstance({
+                name: 'RailyDB',
+                storeName: 'tasks'
+            });
 
-        this.settings = await this.settingsStore.getItem('settings') || {};
+        this.moodsStore =
+            localforage.createInstance({
+                name: 'RailyDB',
+                storeName: 'moods'
+            });
+
+        this.settings =
+            await this.settingsStore.getItem('settings') || {};
+
+        this.charts = {};
 
         await this.refresh();
 
@@ -26,101 +36,181 @@ export default {
     },
 
     async refresh() {
-        this.settings = await this.settingsStore.getItem('settings') || {};
+        this.settings =
+            await this.settingsStore.getItem('settings') || {};
 
-        const tasks = await this._getTasks();
-        const moods = await this._getMoods();
+        const tasks =
+            await this._getTasks();
 
-        const stats = this._calculate(tasks, moods);
+        const moods =
+            await this._getMoods();
+
+        const stats =
+            this._calculate(tasks, moods);
 
         this._render(stats);
     },
 
     async _getTasks() {
-        return (await this.tasksStore.getItem('tasks')) || [];
+        return (
+            await this.tasksStore.getItem('tasks')
+        ) || [];
     },
 
     async _getMoods() {
-        return (await this.moodsStore.getItem('moods')) || [];
+        return (
+            await this.moodsStore.getItem('moods')
+        ) || [];
     },
 
     _calculate(tasks, moods) {
-        const today = this._getToday();
-        const todayDate = this._parseJalali(today);
 
-        const weekStart = this._startOfWeek(todayDate);
-        const monthStart = new Date(
-            todayDate.getFullYear(),
-            todayDate.getMonth(),
-            1
-        );
+        const today =
+            this._getToday();
 
-        const yearStart = new Date(
-            todayDate.getFullYear(),
-            0,
-            1
-        );
+        const todayDate =
+            this._parseJalali(today);
 
-        const total = tasks.length;
-        const completed = tasks.filter(task => task.completed).length;
-        const remaining = tasks.filter(task => !task.completed).length;
-        const rejected = tasks.filter(task => task.rejected).length;
+        const weekStart =
+            this._startOfWeek(todayDate);
 
-        const overdue = tasks.filter(task => {
-            const date = this._parseJalali(task.date);
-            return date && date < todayDate && !task.completed;
-        }).length;
+        const total =
+            tasks.length;
 
-        const todayTasks = tasks.filter(task =>
-            this._isSameDay(this._parseJalali(task.date), todayDate)
-        ).length;
+        const completed =
+            tasks.filter(
+                task => task.completed
+            ).length;
 
-        const future = tasks.filter(task => {
-            const date = this._parseJalali(task.date);
-            return date && date > todayDate;
-        }).length;
+        const remaining =
+            tasks.filter(
+                task => !task.completed
+            ).length;
 
-        const weekMoods = moods.filter(mood => {
-            const date = this._parseJalali(mood.date);
-            return date && date >= weekStart && date <= todayDate;
-        });
+        const rejected =
+            tasks.filter(
+                task => task.rejected
+            ).length;
 
-        const monthMoods = moods.filter(mood => {
-            const date = this._parseJalali(mood.date);
-            return date &&
-                date.getFullYear() === todayDate.getFullYear() &&
-                date.getMonth() === todayDate.getMonth() &&
-                date <= todayDate;
-        });
+        const overdue =
+            tasks.filter(task => {
 
-        const yearMoods = moods.filter(mood => {
-            const date = this._parseJalali(mood.date);
-            return date &&
-                date.getFullYear() === todayDate.getFullYear() &&
-                date <= todayDate;
-        });
+                const date =
+                    this._parseJalali(task.date);
+
+                return (
+                    date &&
+                    date < todayDate &&
+                    !task.completed
+                );
+            }).length;
+
+        const todayTasks =
+            tasks.filter(task =>
+                this._isSameDay(
+                    this._parseJalali(task.date),
+                    todayDate
+                )
+            ).length;
+
+        const future =
+            tasks.filter(task => {
+
+                const date =
+                    this._parseJalali(task.date);
+
+                return (
+                    date &&
+                    date > todayDate
+                );
+            }).length;
+
+        const weekMoods =
+            moods.filter(mood => {
+
+                const date =
+                    this._parseJalali(mood.date);
+
+                return (
+                    date &&
+                    date >= weekStart &&
+                    date <= todayDate
+                );
+            });
+
+        const monthMoods =
+            moods.filter(mood => {
+
+                const date =
+                    this._parseJalali(mood.date);
+
+                return (
+                    date &&
+                    date.getFullYear() ===
+                        todayDate.getFullYear() &&
+
+                    date.getMonth() ===
+                        todayDate.getMonth() &&
+
+                    date <= todayDate
+                );
+            });
+
+        const yearMoods =
+            moods.filter(mood => {
+
+                const date =
+                    this._parseJalali(mood.date);
+
+                return (
+                    date &&
+                    date.getFullYear() ===
+                        todayDate.getFullYear() &&
+
+                    date <= todayDate
+                );
+            });
 
         const categoryStats = {};
 
         tasks.forEach(task => {
-            const categories = Array.isArray(task.category)
-                ? task.category
-                : [task.category || 'other'];
+
+            const categories =
+                Array.isArray(task.category)
+                    ? task.category
+                    : [
+                        task.category || 'other'
+                    ];
 
             categories.forEach(category => {
+
                 categoryStats[category] =
                     (categoryStats[category] || 0) + 1;
             });
         });
 
         const priorityStats = {
-            none: tasks.filter(t => !t.priority || t.priority === 'none').length,
-            low: tasks.filter(t => t.priority === 'low').length,
-            medium: tasks.filter(t => t.priority === 'medium').length,
-            high: tasks.filter(t => t.priority === 'high').length
+
+            none: tasks.filter(task =>
+                !task.priority ||
+                task.priority === 'none'
+            ).length,
+
+            low: tasks.filter(task =>
+                task.priority === 'low'
+            ).length,
+
+            medium: tasks.filter(task =>
+                task.priority === 'medium'
+            ).length,
+
+            high: tasks.filter(task =>
+                task.priority === 'high'
+            ).length
         };
 
         return {
+
             total,
             completed,
             remaining,
@@ -128,33 +218,133 @@ export default {
             overdue,
             today: todayTasks,
             future,
-            weekMood: this._averageMood(weekMoods),
-            monthMood: this._averageMood(monthMoods),
-            yearMood: this._averageMood(yearMoods),
+
+            weekMood:
+                this._averageMood(weekMoods),
+
+            monthMood:
+                this._averageMood(monthMoods),
+
+            yearMood:
+                this._averageMood(yearMoods),
+
             categoryStats,
-            priorityStats
+            priorityStats,
+
+            taskDateStats:
+                this._getTaskDateStats(tasks),
+
+            moodDateStats:
+                this._getMoodDateStats(moods)
         };
     },
 
     _render(stats) {
+
+        this._destroyCharts();
+
         this.fg.innerHTML = `
-            <div class="title">وضعیت</div>
+
+            <div class="title">
+                وضعیت
+            </div>
+
+            <!-- Charts -->
+
+            <div class="status-charts">
+
+                <div class="chart-card">
+
+                    <div class="chart-title">
+                        وضعیت فعالیت‌ها
+                    </div>
+
+                    <div class="chart-box">
+                        <canvas id="tasks-chart"></canvas>
+                    </div>
+
+                </div>
+
+
+                <div class="chart-card">
+
+                    <div class="chart-title">
+                        فعالیت بر اساس اهمیت
+                    </div>
+
+                    <div class="chart-box">
+                        <canvas id="priority-chart"></canvas>
+                    </div>
+
+                </div>
+
+
+                <div class="chart-card">
+
+                    <div class="chart-title">
+                        فعالیت‌ها در طول زمان
+                    </div>
+
+                    <div class="chart-box">
+                        <canvas id="tasks-date-chart"></canvas>
+                    </div>
+
+                </div>
+
+
+                <div class="chart-card">
+
+                    <div class="chart-title">
+                        حال در طول زمان
+                    </div>
+
+                    <div class="chart-box">
+                        <canvas id="mood-date-chart"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Status -->
 
             <div class="status-grid">
 
-                ${this._card('کل فعالیت‌ها', stats.total)}
+                ${this._card(
+                    'کل فعالیت‌ها',
+                    stats.total
+                )}
 
-                ${this._card('انجام شده', stats.completed)}
+                ${this._card(
+                    'انجام شده',
+                    stats.completed
+                )}
 
-                ${this._card('مانده', stats.remaining)}
+                ${this._card(
+                    'مانده',
+                    stats.remaining
+                )}
 
-                ${this._card('رد شده', stats.rejected)}
+                ${this._card(
+                    'رد شده',
+                    stats.rejected
+                )}
 
-                ${this._card('عقب افتاده', stats.overdue)}
+                ${this._card(
+                    'عقب افتاده',
+                    stats.overdue
+                )}
 
-                ${this._card('امروز', stats.today)}
+                ${this._card(
+                    'امروز',
+                    stats.today
+                )}
 
-                ${this._card('آینده', stats.future)}
+                ${this._card(
+                    'آینده',
+                    stats.future
+                )}
 
                 ${this._moodCard(
                     'میانگین حال این هفته',
@@ -171,25 +361,435 @@ export default {
                     stats.yearMood
                 )}
 
-                ${this._categoryCard(stats.categoryStats)}
+                ${this._categoryCard(
+                    stats.categoryStats
+                )}
 
-                ${this._priorityCard(stats.priorityStats)}
+                ${this._priorityCard(
+                    stats.priorityStats
+                )}
 
             </div>
         `;
+
+        this._renderCharts(stats);
+    },
+
+    _renderCharts(stats) {
+
+        this.charts = {
+
+            tasks:
+                this._createTasksChart(stats),
+
+            priority:
+                this._createPriorityChart(stats),
+
+            tasksDate:
+                this._createTasksDateChart(stats),
+
+            moodDate:
+                this._createMoodDateChart(stats)
+        };
+    },
+
+    _destroyCharts() {
+
+        if (!this.charts) {
+            return;
+        }
+
+        Object.values(this.charts)
+            .forEach(chart => {
+
+                if (chart) {
+                    chart.destroy();
+                }
+            });
+
+        this.charts = {};
+    },
+
+    _createTasksChart(stats) {
+
+        const canvas =
+            document.getElementById(
+                'tasks-chart'
+            );
+
+        if (!canvas) {
+            return null;
+        }
+
+        return new Chart(canvas, {
+
+            type: 'doughnut',
+
+            data: {
+
+                labels: [
+                    'انجام شده',
+                    'مانده',
+                    'رد شده',
+                    'عقب افتاده'
+                ],
+
+                datasets: [{
+
+                    data: [
+                        stats.completed,
+                        stats.remaining,
+                        stats.rejected,
+                        stats.overdue
+                    ]
+                }]
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                plugins: {
+
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    },
+
+    _createPriorityChart(stats) {
+
+        const canvas =
+            document.getElementById(
+                'priority-chart'
+            );
+
+        if (!canvas) {
+            return null;
+        }
+
+        return new Chart(canvas, {
+
+            type: 'pie',
+
+            data: {
+
+                labels: [
+                    'بدون اولویت',
+                    'کم',
+                    'معمولی',
+                    'بالا'
+                ],
+
+                datasets: [{
+
+                    data: [
+                        stats.priorityStats.none,
+                        stats.priorityStats.low,
+                        stats.priorityStats.medium,
+                        stats.priorityStats.high
+                    ]
+                }]
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                plugins: {
+
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    },
+
+    _createTasksDateChart(stats) {
+
+        const canvas =
+            document.getElementById(
+                'tasks-date-chart'
+            );
+
+        if (!canvas) {
+            return null;
+        }
+
+        const dates =
+            Object.keys(
+                stats.taskDateStats
+            ).sort((a, b) => {
+
+                return (
+                    this._parseJalali(a) -
+                    this._parseJalali(b)
+                );
+            });
+
+        return new Chart(canvas, {
+
+            type: 'line',
+
+            data: {
+
+                labels: dates,
+
+                datasets: [
+
+                    {
+                        label: 'کل فعالیت‌ها',
+
+                        data: dates.map(date =>
+                            stats
+                                .taskDateStats[date]
+                                .total
+                        ),
+
+                        tension: 0.35
+                    },
+
+                    {
+                        label: 'انجام شده',
+
+                        data: dates.map(date =>
+                            stats
+                                .taskDateStats[date]
+                                .completed
+                        ),
+
+                        tension: 0.35
+                    }
+
+                ]
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+
+                plugins: {
+
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    },
+
+    _createMoodDateChart(stats) {
+
+        const canvas =
+            document.getElementById(
+                'mood-date-chart'
+            );
+
+        if (!canvas) {
+            return null;
+        }
+
+        const dates =
+            Object.keys(
+                stats.moodDateStats
+            ).sort((a, b) => {
+
+                return (
+                    this._parseJalali(a) -
+                    this._parseJalali(b)
+                );
+            });
+
+        return new Chart(canvas, {
+
+            type: 'line',
+
+            data: {
+
+                labels: dates,
+
+                datasets: [{
+
+                    label: 'حال',
+
+                    data: dates.map(date =>
+                        stats.moodDateStats[date]
+                    ),
+
+                    tension: 0.35
+                }]
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                scales: {
+
+                    y: {
+
+                        min: 1,
+                        max: 5,
+
+                        ticks: {
+
+                            stepSize: 1,
+
+                            callback: value => {
+
+                                const labels = {
+
+                                    1: 'خیلی بد',
+                                    2: 'بد',
+                                    3: 'نرمال',
+                                    4: 'خوب',
+                                    5: 'خیلی خوب'
+                                };
+
+                                return (
+                                    labels[value] ||
+                                    value
+                                );
+                            }
+                        }
+                    }
+                },
+
+                interaction: {
+
+                    intersect: false,
+                    mode: 'index'
+                },
+
+                plugins: {
+
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    },
+
+    _getTaskDateStats(tasks) {
+
+        const stats = {};
+
+        tasks.forEach(task => {
+
+            if (!task.date) {
+                return;
+            }
+
+            if (!stats[task.date]) {
+
+                stats[task.date] = {
+
+                    total: 0,
+                    completed: 0,
+                    remaining: 0
+                };
+            }
+
+            stats[task.date].total++;
+
+            if (task.completed) {
+
+                stats[task.date].completed++;
+
+            } else {
+
+                stats[task.date].remaining++;
+            }
+        });
+
+        return stats;
+    },
+
+    _getMoodDateStats(moods) {
+
+        const values = {
+
+            'very-sad': 1,
+            sad: 2,
+            okay: 3,
+            good: 4,
+            happy: 5
+        };
+
+        const stats = {};
+
+        moods.forEach(mood => {
+
+            if (
+                !mood.date ||
+                !values[mood.mood]
+            ) {
+                return;
+            }
+
+            if (!stats[mood.date]) {
+                stats[mood.date] = [];
+            }
+
+            stats[mood.date].push(
+                values[mood.mood]
+            );
+        });
+
+        return Object.fromEntries(
+
+            Object.entries(stats)
+                .map(([date, values]) => [
+
+                    date,
+
+                    values.reduce(
+                        (sum, value) =>
+                            sum + value,
+                        0
+                    ) / values.length
+                ])
+        );
     },
 
     _card(title, value) {
+
         return `
             <div class="status-card">
-                <div class="title">${title}</div>
-                <div class="value">${value}</div>
+
+                <div class="title">
+                    ${title}
+                </div>
+
+                <div class="value">
+                    ${value}
+                </div>
+
             </div>
         `;
     },
 
     _moodCard(title, value) {
+
         const labels = {
+
             1: 'خیلی بد',
             2: 'بد',
             3: 'نرمال',
@@ -199,16 +799,29 @@ export default {
 
         return `
             <div class="status-card">
-                <div class="title">${title}</div>
-                <div class="value">
-                    ${value ? labels[Math.round(value)] : 'بدون داده'}
+
+                <div class="title">
+                    ${title}
                 </div>
+
+                <div class="value">
+
+                    ${
+                        value
+                            ? labels[Math.round(value)]
+                            : 'بدون داده'
+                    }
+
+                </div>
+
             </div>
         `;
     },
 
     _categoryCard(stats) {
+
         const labels = {
+
             exercise: 'تمرین',
             study: 'مطالعه',
             lesson: 'درس',
@@ -217,56 +830,99 @@ export default {
             other: 'سایر'
         };
 
-        const content = Object.entries(stats)
-            .map(([key, value]) => `
-                <div>
-                    <span>${labels[key] || key}</span>
-                    <strong>${value}</strong>
-                </div>
-            `)
-            .join('');
+        const content =
+            Object.entries(stats)
+                .map(([key, value]) => `
+
+                    <div>
+
+                        <span>
+                            ${labels[key] || key}
+                        </span>
+
+                        <strong>
+                            ${value}
+                        </strong>
+
+                    </div>
+
+                `)
+                .join('');
 
         return `
             <div class="status-card status-list-card">
-                <div class="title">فعالیت بر اساس دسته‌بندی</div>
-                <div class="list">
-                    ${content || '<span>بدون داده</span>'}
+
+                <div class="title">
+                    فعالیت بر اساس دسته‌بندی
                 </div>
+
+                <div class="list">
+
+                    ${
+                        content ||
+                        '<span>بدون داده</span>'
+                    }
+
+                </div>
+
             </div>
         `;
     },
 
     _priorityCard(stats) {
+
         const labels = {
+
             none: 'بدون اولویت',
             low: 'کم',
             medium: 'معمولی',
             high: 'بالا'
         };
 
-        const content = Object.entries(stats)
-            .map(([key, value]) => `
-                <div>
-                    <span>${labels[key]}</span>
-                    <strong>${value}</strong>
-                </div>
-            `)
-            .join('');
+        const content =
+            Object.entries(stats)
+                .map(([key, value]) => `
+
+                    <div>
+
+                        <span>
+                            ${labels[key]}
+                        </span>
+
+                        <strong>
+                            ${value}
+                        </strong>
+
+                    </div>
+
+                `)
+                .join('');
 
         return `
             <div class="status-card status-list-card">
-                <div class="title">فعالیت بر اساس اهمیت</div>
-                <div class="list">
-                    ${content}
+
+                <div class="title">
+                    فعالیت بر اساس اهمیت
                 </div>
+
+                <div class="list">
+
+                    ${content}
+
+                </div>
+
             </div>
         `;
     },
 
     _averageMood(moods) {
-        if (!moods.length) return null;
+
+        if (!moods.length) {
+            return null;
+        }
 
         const values = {
+
             'very-sad': 1,
             sad: 2,
             okay: 3,
@@ -274,30 +930,59 @@ export default {
             happy: 5
         };
 
-        const valid = moods
-            .map(mood => values[mood.mood])
-            .filter(Boolean);
+        const valid =
+            moods
+                .map(mood =>
+                    values[mood.mood]
+                )
+                .filter(Boolean);
 
-        if (!valid.length) return null;
+        if (!valid.length) {
+            return null;
+        }
 
-        return valid.reduce((sum, value) => sum + value, 0) / valid.length;
+        return (
+            valid.reduce(
+                (sum, value) =>
+                    sum + value,
+                0
+            ) / valid.length
+        );
     },
 
     _getToday() {
-        const offset = Number(this.settings.timeOffset) || 0;
-        const date = new Date(Date.now() + offset);
+
+        const offset =
+            Number(this.settings.timeOffset) || 0;
+
+        const date =
+            new Date(
+                Date.now() + offset
+            );
 
         return this._gregorianToJalali(
+
             date.getFullYear(),
+
             date.getMonth() + 1,
+
             date.getDate()
         );
     },
 
     _parseJalali(value) {
-        if (!value || typeof value !== 'string') return null;
 
-        const parts = value.split('/').map(Number);
+        if (
+            !value ||
+            typeof value !== 'string'
+        ) {
+            return null;
+        }
+
+        const parts =
+            value
+                .split('/')
+                .map(Number);
 
         if (
             parts.length !== 3 ||
@@ -306,110 +991,245 @@ export default {
             return null;
         }
 
-        const [jy, jm, jd] = parts;
+        const [
+            jy,
+            jm,
+            jd
+        ] = parts;
 
-        const g = this._jalaliToGregorian(jy, jm, jd);
+        const g =
+            this._jalaliToGregorian(
+                jy,
+                jm,
+                jd
+            );
 
-        const date = new Date(
-            g.gy,
-            g.gm - 1,
-            g.gd
-        );
+        const date =
+            new Date(
+                g.gy,
+                g.gm - 1,
+                g.gd
+            );
 
-        return Number.isNaN(date.getTime()) ? null : date;
+        return Number.isNaN(
+            date.getTime()
+        )
+            ? null
+            : date;
     },
 
-    _gregorianToJalali(gy, gm, gd) {
+    _gregorianToJalali(
+        gy,
+        gm,
+        gd
+    ) {
+
         const gdm = [
-            0, 31, 59, 90, 120, 151,
-            181, 212, 243, 273, 304, 334
+
+            0, 31, 59, 90,
+            120, 151, 181,
+            212, 243, 273,
+            304, 334
         ];
 
-        const jy = gy <= 1600 ? 0 : 979;
-        const gy2 = gy <= 1600 ? gy - 621 : gy - 1600;
-        const gyYear = gm > 2 ? gy2 + 1 : gy2;
+        const jy =
+            gy <= 1600
+                ? 0
+                : 979;
+
+        const gy2 =
+            gy <= 1600
+                ? gy - 621
+                : gy - 1600;
+
+        const gyYear =
+            gm > 2
+                ? gy2 + 1
+                : gy2;
 
         let days =
+
             365 * gy2 +
-            Math.floor((gyYear + 3) / 4) -
-            Math.floor((gyYear + 99) / 100) +
-            Math.floor((gyYear + 399) / 400) -
+
+            Math.floor(
+                (gyYear + 3) / 4
+            ) -
+
+            Math.floor(
+                (gyYear + 99) / 100
+            ) +
+
+            Math.floor(
+                (gyYear + 399) / 400
+            ) -
+
             80 +
+
             gd +
+
             gdm[gm - 1];
 
-        let jy2 = jy + 33 * Math.floor(days / 12053);
+        let jy2 =
+            jy +
+            33 *
+            Math.floor(
+                days / 12053
+            );
 
         days %= 12053;
-        jy2 += 4 * Math.floor(days / 1461);
+
+        jy2 +=
+            4 *
+            Math.floor(
+                days / 1461
+            );
+
         days %= 1461;
 
         if (days > 365) {
-            jy2 += Math.floor((days - 1) / 365);
-            days = (days - 1) % 365;
+
+            jy2 +=
+                Math.floor(
+                    (days - 1) / 365
+                );
+
+            days =
+                (days - 1) % 365;
         }
 
-        const jm = days < 186
-            ? 1 + Math.floor(days / 31)
-            : 7 + Math.floor((days - 186) / 30);
-
-        const jd = 1 + (
+        const jm =
             days < 186
-                ? days % 31
-                : (days - 186) % 30
-        );
 
-        return `${jy2}/${String(jm).padStart(2, '0')}/${String(jd).padStart(2, '0')}`;
+                ? 1 +
+                    Math.floor(
+                        days / 31
+                    )
+
+                : 7 +
+                    Math.floor(
+                        (days - 186) / 30
+                    );
+
+        const jd =
+            1 +
+            (
+                days < 186
+
+                    ? days % 31
+
+                    : (days - 186) % 30
+            );
+
+        return `
+            ${jy2}/
+            ${String(jm).padStart(2, '0')}/
+            ${String(jd).padStart(2, '0')}
+        `.replace(/\s/g, '');
     },
 
-    _jalaliToGregorian(jy, jm, jd) {
-        let jy2 = jy - (jy >= 979 ? 979 : 0);
+    _jalaliToGregorian(
+        jy,
+        jm,
+        jd
+    ) {
+
+        let jy2 =
+            jy -
+            (jy >= 979 ? 979 : 0);
 
         let days =
+
             365 * jy2 +
-            Math.floor(jy2 / 33) * 8 +
-            Math.floor((jy2 % 33 + 3) / 4);
+
+            Math.floor(
+                jy2 / 33
+            ) * 8 +
+
+            Math.floor(
+                (jy2 % 33 + 3) / 4
+            );
 
         if (jm <= 6) {
-            days += (jm - 1) * 31;
+
+            days +=
+                (jm - 1) * 31;
+
         } else {
-            days += (jm - 7) * 30 + 186;
+
+            days +=
+                (jm - 7) * 30 +
+                186;
         }
 
         days += jd - 1;
 
-        let gy = jy >= 979 ? 1600 : 621;
+        let gy =
+            jy >= 979
+                ? 1600
+                : 621;
 
-        gy += 400 * Math.floor(days / 146097);
+        gy +=
+            400 *
+            Math.floor(
+                days / 146097
+            );
+
         days %= 146097;
 
         let leap = true;
 
         if (days >= 36525) {
+
             days--;
-            gy += 100 * Math.floor(days / 36524);
+
+            gy +=
+                100 *
+                Math.floor(
+                    days / 36524
+                );
+
             days %= 36524;
 
             if (days >= 365) {
+
                 days++;
+
             } else {
+
                 leap = false;
             }
         }
 
-        gy += 4 * Math.floor(days / 1461);
+        gy +=
+            4 *
+            Math.floor(
+                days / 1461
+            );
+
         days %= 1461;
 
         if (days >= 366) {
+
             leap = false;
+
             days--;
-            gy += Math.floor(days / 365);
+
+            gy +=
+                Math.floor(
+                    days / 365
+                );
+
             days %= 365;
         }
 
         const monthDays = [
+
             31,
-            leap ? 29 : 28,
+
+            leap
+                ? 29
+                : 28,
+
             31,
             30,
             31,
@@ -423,15 +1243,28 @@ export default {
         ];
 
         let gm = 1;
-        let gd = days + 1;
 
-        for (let i = 0; i < monthDays.length; i++) {
-            if (gd <= monthDays[i]) {
-                gm = i + 1;
+        let gd =
+            days + 1;
+
+        for (
+            let i = 0;
+            i < monthDays.length;
+            i++
+        ) {
+
+            if (
+                gd <= monthDays[i]
+            ) {
+
+                gm =
+                    i + 1;
+
                 break;
             }
 
-            gd -= monthDays[i];
+            gd -=
+                monthDays[i];
         }
 
         return {
@@ -442,23 +1275,48 @@ export default {
     },
 
     _startOfWeek(date) {
-        const result = new Date(date);
-        const day = result.getDay();
-        const diff = day === 0 ? -6 : 1 - day;
 
-        result.setDate(result.getDate() + diff);
-        result.setHours(0, 0, 0, 0);
+        const result =
+            new Date(date);
+
+        const day =
+            result.getDay();
+
+        const diff =
+            day === 0
+                ? -6
+                : 1 - day;
+
+        result.setDate(
+            result.getDate() + diff
+        );
+
+        result.setHours(
+            0,
+            0,
+            0,
+            0
+        );
 
         return result;
     },
 
     _isSameDay(a, b) {
-        if (!a || !b) return false;
+
+        if (!a || !b) {
+            return false;
+        }
 
         return (
-            a.getFullYear() === b.getFullYear() &&
-            a.getMonth() === b.getMonth() &&
-            a.getDate() === b.getDate()
+
+            a.getFullYear() ===
+                b.getFullYear() &&
+
+            a.getMonth() ===
+                b.getMonth() &&
+
+            a.getDate() ===
+                b.getDate()
         );
     }
-}; 
+};
